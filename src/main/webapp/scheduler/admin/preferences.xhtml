@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+    <ui:composition template="../../templates/scheduler/layout.xhtml">
+        <ui:define name="menu">
+            <ul class="nav nav-sidebar">
+                <li><a href="users.xhtml">#{secMsg['users']}</a></li>
+                <li><a href="questions.xhtml">#{secMsg['questions']}</a></li>
+                <li><a href="representation.xhtml">#{secMsg['representation']}</a></li>
+                <li><a href="pages.xhtml">#{secMsg['pages']}</a></li>
+                <li><a href="templates.xhtml">Templates</a></li>
+                <li class="active"><a href="#">#{secMsg['preferences']}</a></li>
+            </ul>
+        </ui:define>
+        <ui:define name="content">
+            <f:loadBundle basename="internationalization.admin.admin"
+                          var="secMsg" />
+            <f:loadBundle basename="internationalization.admin.template"
+                          var="adminMsg" />
+            <f:loadBundle basename="internationalization.general" var="msg" />
+            <h:panelGroup rendered="#{userBean.user.userRole eq 'admin'}">
+                <h2>#{secMsg['preferences']}</h2>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h:form id="updatePreferencesForm">
+                            <p:growl id="growl" showDetail="no" autoUpdate="false" />
+                            <p:panel header="#{secMsg['preferencesEdit']}" id="updatePreferences">
+                                <h:panelGrid columns="2" cellpadding="5">
+                                    <h:outputLabel for="fileSuffix" value="#{secMsg['fileSuffix']}:" />
+                                    <p:inputText id="fileSuffix" value="#{preferenceBean.preference.fileSuffix}"
+                                                 validatorMessage="#{msg['errorFileSuffix']}" maxlength="128">
+                                        <f:validateRegex pattern="^\w+(;\w+)*$" />
+                                    </p:inputText>
+                                    <h:outputLabel for="fileSize" value="#{secMsg['fileSize']} (in MB):" />
+                                    <p:inputText id="fileSize" value="#{preferenceBean.preference.fileSize}"
+                                                 maxlength="4" required="true"
+                                                 requiredMessage="#{secMsg['fileSizeRequired']}" validatorMessage="#{secMsg['fileSizeRequiredVal']}">
+                                        <f:validateLongRange minimum="1" maximum="1000" />
+                                    </p:inputText>
+                                    <h:outputLabel for="fileNumber" value="#{secMsg['fileNumber']}:" />
+                                    <p:inputText id="fileNumber" value="#{preferenceBean.preference.fileNumber}"
+                                                 maxlength="2" required="true"
+                                                 requiredMessage="#{secMsg['fileNumberRequired']}" validatorMessage="#{secMsg['fileNumberRequiredVal']}">
+                                        <f:validateLongRange minimum="0" maximum="15" />
+                                    </p:inputText>
+                                </h:panelGrid>
+                                <p:spacer height="5" />
+                                <p:separator />
+                                <p:commandButton
+                                        update="updatePreferencesForm:updatePreferences growl"
+                                        ajax="true" value="#{msg['save']}"
+                                        actionListener="#{preferenceBean.save}" icon="fa fa-save"
+                                        styleClass="ui-priority-primary" id="create" />
+                            </p:panel>
+                        </h:form>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{userBean.user.userRole ne 'admin'}">
+                <div class="alert alert-danger">
+                    <strong>#{msg['errorPermission']}</strong>
+                </div>
+            </h:panelGroup>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>

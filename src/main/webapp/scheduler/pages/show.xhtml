@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<f:metadata>
+		<f:viewParam name="id" value="#{pageBean.data}" />
+		<f:viewAction action="#{pageBean.onRedirect(param.id,'show')}" />
+	</f:metadata>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="own.xhtml">#{pagesMsg['own']}</a></li>
+				<li><a href="shared.xhtml">#{pagesMsg['sharedPages']}</a></li>
+				<li><a href="new.xhtml">#{pagesMsg['new']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.pages"
+				var="pagesMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<div>
+					<h2>
+						<h:outputText id="title" escape="false" styleClass="preformatted" value="#{pageBean.customPage.title}" />
+					</h2>
+					<br /> 
+					<h:outputText id="content" escape="false" styleClass="preformatted" value="#{pageBean.customPage.content}" />
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="groups.xhtml">#{communityMsg['groups']}</a></li>
+				<li><a href="invitations.xhtml">#{communityMsg['invitations']}</a></li>
+				<li><a href="users.xhtml">#{communityMsg['users']}</a></li>
+				<li class="active"><a href="#">#{communityMsg['teachers']}</a></li>
+				<li><a href="phone.xhtml">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{communityMsg['teachers']}</h2>
+			
+			<p:dataTable id="teachers" var="teacher" 
+									 value="#{userBean.getAllTeachers()}" 
+									 emptyMessage="#{communityMsg['teachersEmpty']}">
+			<p:column headerText="#{communityMsg['teacherName']}" style="width:25%">
+								<h:outputText value="#{teacher.profile.getPureName()}" />
+			</p:column>
+								
+			<p:column headerText="#{communityMsg['teacherEmail']}" style="width:25%">
+								<h:outputText value="#{teacher.email}" /> 
+			</p:column>
+			</p:dataTable>
+								
+			
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

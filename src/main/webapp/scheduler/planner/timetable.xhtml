@@ -1,0 +1,147 @@
+<!--Author: Mirco Bockholt-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li class="active"><a href="#">#{plannerMsg['timetable']}</a></li>
+				<li><a href="todos.xhtml">#{plannerMsg['todos']}</a></li>
+				<li><a href="representation.xhtml">#{plannerMsg['schedule']}</a></li>
+				<li><a href="absence.xhtml">#{plannerMsg['absence']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.planner"
+				var="plannerMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{plannerMsg['timetable']}</h2>
+			<h:form id="scheduleForm">
+			
+				<p:growl id="growl" showDetail="no" autoUpdate="false" />
+				<h:panelGrid columnClasses="value">
+				<p:schedule id="timetableWidget" value="#{timetable.timetable}"
+							widgetVar="timetableWidget" timeZone="GMT+1" view="agendaWeek" leftHeaderTemplate=""
+							rightHeaderTemplate="" allDaySlot="false" showWeekends="#{timetable.timetable.showWeekends}" minTime="6:00"
+							maxTime="20:00" aspectRatio="2.31" initialDate="#{timetable.timetable.initialDate}"
+							showHeader="false" columnFormat="month: 'ddd', agendaWeek: 'ddd'" axisFormat="HH:mm" timeFormat="HH:mm">
+					<p:ajax event="dateSelect" listener="#{timetable.onDateSelect}"
+							update="entryDetails" oncomplete="PF('entryDialog').show();"/>
+					<p:ajax event="eventSelect" listener="#{timetable.onEventSelect}"
+							update="entryDetails" oncomplete="PF('entryDialog').show();"/>
+					<p:ajax event="eventMove" listener="#{timetable.onEventMove}"
+							update="growl" />
+				</p:schedule>
+				</h:panelGrid>
+				
+				<h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5">
+		        <!-- <h:outputText value="Wochenenden anzeigen: " /> -->
+		        <p:selectBooleanCheckbox value="#{timetable.timetable.showWeekends}" itemLabel="#{plannerMsg['showWeekends']}">
+		        	<p:ajax update="scheduleForm" listener="#{timetable.onShowWeekendsClick}" />
+		       	</p:selectBooleanCheckbox>
+    		</h:panelGrid>
+
+				<p:dialog widgetVar="entryDialog" closeOnEscape="true" header="#{plannerMsg['timetableEntry']}"
+						  hideEffect="fade" showEffect="fade" responsive="true">
+					<h:panelGrid id="entryDetails" columns="2">
+						<p:outputLabel for="title" value="#{plannerMsg['title']}:"/>
+						<p:inputText id="title" value="#{timetable.timetableEntry.title}"
+									 required="true" requiredMessage="#{msg['errorRequiredTitle']}"
+									 maxlength="64"/>
+						<p:outputLabel for="description"
+									   value="#{plannerMsg['description']}:"/>
+						<p:inputTextarea id="description"
+										 value="#{timetable.timetableEntry.description}" maxlength="2048"/>
+
+						<p:outputLabel for="place" value="#{plannerMsg['place']}:"/>
+						<p:inputText id="place" value="#{timetable.timetableEntry.place}"
+									 maxlength="64"/>
+
+						<p:outputLabel for="from" value="#{plannerMsg['from']}:"/>
+						<p:calendar id="from" value="#{timetable.startTime}"
+									timeZone="GMT+1" pattern="HH:mm" timeOnly="true"
+									minHour="6" maxHour="19" required="true" 
+									requiredMessage="#{msg['errorMissingTime']}"/>
+
+						<p:outputLabel for="to" value="#{plannerMsg['to']}:"/>
+						<p:calendar id="to" value="#{timetable.endTime}"
+									timeZone="GMT+1" pattern="HH:mm" timeOnly="true"
+									minHour="6" maxHour="19" required="true"
+									requiredMessage="#{msg['errorMissingTime']}"/>
+
+						<p:commandButton id="addButton" value="#{msg['save']}"
+										 actionListener="#{timetable.addTimetableEntry}"
+										 oncomplete="PF('timetableWidget').update();PF('entryDialog').hide();"
+										 update="growl" styleClass="ui-priority-primary" icon="fa fa-floppy-o"/>
+						<p:commandButton id="deleteButton" value="#{msg['delete']}"
+										 actionListener="#{timetable.removeTimetableEntry}"
+										 oncomplete="PF('timetableWidget').update();PF('entryDialog').hide();"
+										 rendered="#{timetable.renderDeleteButton()}" update="growl" icon="fa fa-trash-o"
+										 styleClass="ui-priority-primary" style="background: red"/>
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+			<h:form enctype="multipart/form-data" id="timetableImportForm">
+			<p:accordionPanel activeIndex="null">
+				<p:tab title="#{plannerMsg['importTimetable']}">
+					<p:growl id="growl2" showDetail="no" autoUpdate="false" />
+					<p:fileUpload value="#{timetable.user.dif}" id="dif2"
+								  mode="advanced" skinSimple="true" auto="true"
+								  dragDropSupport="true" update="growl2 :scheduleForm:timetableWidget"
+								  sizeLimit="1000000" label="#{plannerMsg['import']}"
+								  fileUploadListener="#{timetable.uploadDIF}"
+								  invalidSizeMessage="#{msg['errorInvalidDifSizeMessage']}" />
+					<p:tooltip id="toolTipPicture2" for="dif2"
+							   value="#{msg['noteDifFormat2']}" position="top" />
+				</p:tab>
+			</p:accordionPanel>
+		</h:form>
+
+			<script type="text/javascript">
+                PrimeFaces.locales['de'] = {
+                    closeText : 'Schlie\u00dfen',
+                    prevText : 'Vorheriges',
+                    nextText : 'N\u00e4chstes',
+                    currentText : 'Aktuelles Datum',
+                    monthNames : [ 'Januar', 'Februar', 'M\u00e4rz', 'April',
+                        'Mai', 'Juni', 'Juli', 'August', 'September',
+                        'Oktober', 'November', 'Dezember' ],
+                    monthNamesShort : [ 'Jan', 'Feb', 'M\u00e4r', 'Apr', 'Mai',
+                        'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                    dayNames : [ 'Sonntag', 'Montag', 'Dienstag', 'Mittwoch',
+                        'Donnerstag', 'Freitag', 'Samstag' ],
+                    dayNamesShort : [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ],
+                    dayNamesMin : [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ],
+                    weekHeader : 'Wo',
+                    firstDay : 1,
+                    isRTL : false,
+                    showMonthAfterYear : false,
+                    yearSuffix : '',
+                    month : 'Monat',
+                    week : 'Woche',
+                    day : 'Tag',
+                    timeOnlyTitle: 'Uhrzeit wählen',
+					timeText: 'Uhrzeit',
+					hourText: 'Stunde',
+					minuteText: 'Minute',
+					secondText: 'Sekunde',
+                    ampm: false,
+                    allDayText : 'Ganzer Tag'
+                };
+			</script>
+			<style type="text/css">
+				.value {
+					width: 1000px;
+				}
+			</style>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

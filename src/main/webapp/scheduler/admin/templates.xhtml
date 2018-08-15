@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="users.xhtml">#{secMsg['users']}</a></li>
+				<li><a href="questions.xhtml">#{secMsg['questions']}</a></li>
+				<li><a href="representation.xhtml">#{secMsg['representation']}</a></li>
+				<li><a href="pages.xhtml">#{secMsg['pages']}</a></li>
+				<li class="active"><a href="#">Templates</a></li>
+				<li><a href="preferences.xhtml">#{secMsg['preferences']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.admin"
+				var="secMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h:panelGroup rendered="#{userBean.user.userRole eq 'admin'}">
+				<h2>Templates</h2>
+				<div class="col-md-6">
+					<p:tooltip position="top" />
+					<h:form id="frontendForm">
+						<p:growl id="growl" showDetail="no" sticky="false"
+							autoUpdate="false" />
+						<p:panel header="Frontend">
+							<h:panelGrid columns="2" cellpadding="5" id="backendPanel">
+								<h:outputLabel for="frontendTitle" value="#{secMsg['title']}:" />
+								<p:inputText id="frontendTitle"
+									value="#{templateBean.frontendTemplate.title}" maxlength="16"
+									title="#{msg['noteEmptyField']}" />
+								<h:outputLabel for="frontendIntro" value="Intro:" />
+								<p:inputText id="frontendIntro"
+									value="#{templateBean.frontendTemplate.intro}" maxlength="16"
+									title="#{msg['noteEmptyField']}" />
+								<h:outputLabel for="frontendSlogan" value="Slogan:" />
+								<p:inputText id="frontendSlogan"
+									value="#{templateBean.frontendTemplate.slogan}" maxlength="32"
+									title="#{msg['noteEmptyField']}" />
+								<h:outputLabel for="frontendCopyright" value="Copyright:" />
+								<p:inputText id="frontendCopyright"
+									value="#{templateBean.frontendTemplate.copyright}"
+									maxlength="32" title="#{msg['noteEmptyField']}" />
+								<h:outputLabel for="frontendColor" value="#{secMsg['color']}:" />
+								<p:colorPicker id="frontendColor"
+									value="#{templateBean.frontendTemplate.color}" />
+								<h:outputLabel for="frontendBackground"
+									value="#{secMsg['background']}:" />
+								<p:colorPicker id="frontendBackground"
+									value="#{templateBean.frontendTemplate.background}" />
+								<h:outputLabel for="language" value="#{secMsg['language']}:" />
+								<p:selectBooleanButton id="language"
+									value="#{templateBean.frontendTemplate.language}"
+									onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+									style="width:60px" />
+								<h:outputLabel for="user" value="#{secMsg['user']}:" />
+								<p:selectBooleanButton id="user"
+									value="#{templateBean.frontendTemplate.userStatus}"
+									onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+									style="width:60px" />
+								<h:outputLabel for="login" value="#{secMsg['login']}:" />
+								<p:selectBooleanButton id="login"
+									value="#{templateBean.frontendTemplate.login}"
+									onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+									style="width:60px" />
+								<h:outputLabel for="frontendMaintenance"
+									value="#{secMsg['maintenance']}:" />
+								<p:selectBooleanButton id="frontendMaintenance"
+									value="#{templateBean.frontendTemplate.maintenance}"
+									onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+									style="width:60px" />
+							</h:panelGrid>
+							<pe:ckEditor id="frontendMaintenanceContent"
+								widgetVar="editorFrontendMaintenance"
+								value="#{templateBean.frontendTemplate.maintenanceContent}"
+								maxlength="128" width="100%"
+								toolbar="
+					[
+						{ name: 'document', items : [ 'NewPage','DocProps','Preview','Print','-','Templates' ] },
+						{ name: 'clipboard', items : [ 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo' ] },
+						{ name: 'editing', items : [ 'Find','Replace','-','SelectAll', ] },
+
+						{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat' ] },
+						{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+						'-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+						{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+						{ name: 'insert', items : [ 'Image','Table','HorizontalRule','Smiley','SpecialChar','PageBreak' ] },
+
+						{ name: 'styles', items : [ 'Styles','Format','Font','FontSize' ] },
+						{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+						{ name: 'tools', items : [ 'Maximize', 'ShowBlocks', '-', 'Source'] }
+					]" />
+							<p:spacer height="5" />
+							<p:separator />
+							<p:commandButton update="growl :frontendForm"
+								value="#{msg['save']}"
+								actionListener="#{templateBean.saveFrontend}"
+								icon="fa fa-floppy-o" styleClass="ui-priority-primary" />
+						</p:panel>
+					</h:form>
+				</div>
+				<div class="col-md-6">
+					<p:tooltip position="top" />
+					<h:form id="backendForm">
+						<p:growl id="growl" showDetail="no" sticky="true"
+							autoUpdate="false" />
+						<p:panel header="Backend">
+							<h:panelGrid columns="2" cellpadding="5" id="backendPanel">
+								<h:outputLabel for="backendTitle" value="#{secMsg['title']}:" />
+								<p:inputText id="backendTitle"
+									value="#{templateBean.backendTemplate.title}" maxlength="16"
+									title="#{msg['noteEmptyField']}" />
+								<h:outputLabel for="backendColor" value="#{secMsg['color']}:" />
+								<p:colorPicker id="backendColor"
+									value="#{templateBean.backendTemplate.color}" />
+								<h:outputLabel for="backendBackground"
+									value="#{secMsg['background']}:" />
+								<p:colorPicker id="backendBackground"
+									value="#{templateBean.backendTemplate.background}" />
+								<h:outputLabel for="backendNavbar" value="#{secMsg['navbar']}:" />
+								<p:colorPicker id="backendNavbar"
+									value="#{templateBean.backendTemplate.navbar}" />
+								<h:outputLabel for="sidebar" value="#{secMsg['sidebar']}:" />
+								<p:colorPicker id="sidebar"
+									value="#{templateBean.backendTemplate.sidebar}" />
+								<h:outputLabel for="backendMaintenance"
+									value="#{secMsg['maintenance']}:" />
+								<p:selectBooleanButton id="backendMaintenance"
+									value="#{templateBean.backendTemplate.maintenance}"
+									onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+									style="width:60px" />
+							</h:panelGrid>
+							<pe:ckEditor id="backendMaintenanceContent"
+								widgetVar="editorBackendMaintenance"
+								value="#{templateBean.backendTemplate.maintenanceContent}"
+								maxlength="128" width="100%"
+								toolbar="
+					[
+						{ name: 'document', items : [ 'NewPage','DocProps','Preview','Print','-','Templates' ] },
+						{ name: 'clipboard', items : [ 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo' ] },
+						{ name: 'editing', items : [ 'Find','Replace','-','SelectAll', ] },
+
+						{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat' ] },
+						{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+						'-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+						{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+						{ name: 'insert', items : [ 'Image','Table','HorizontalRule','Smiley','SpecialChar','PageBreak' ] },
+
+						{ name: 'styles', items : [ 'Styles','Format','Font','FontSize' ] },
+						{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+						{ name: 'tools', items : [ 'Maximize', 'ShowBlocks', '-', 'Source'] }
+					]" />
+							<p:spacer height="5" />
+							<p:separator />
+							<p:commandButton update="growl :backendForm"
+								value="#{msg['save']}"
+								actionListener="#{templateBean.saveBackend}" icon="fa fa-floppy-o"
+								styleClass="ui-priority-primary" oncomplete="location.reload();" />
+						</p:panel>
+					</h:form>
+				</div>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{userBean.user.userRole ne 'admin'}">
+
+				<div class="alert alert-danger">
+					<strong>#{msg['errorPermission']}</strong>
+				</div>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

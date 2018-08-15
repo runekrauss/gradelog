@@ -1,0 +1,127 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="timetable.xhtml">#{plannerMsg['timetable']}</a></li>
+				<li class="active"><a href="#">#{plannerMsg['todos']}</a></li>
+				<li><a href="representation.xhtml">#{plannerMsg['schedule']}</a></li>
+				<li><a href="absence.xhtml">#{plannerMsg['absence']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.planner"
+				var="plannerMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{plannerMsg['todos']}</h2>
+			<h:form>
+				<p:growl id="growl" showDetail="no" autoUpdate="false" />
+
+				<h:panelGrid columnClasses="value">
+					<p:schedule id="calendar" value="#{calendar.calendar}"
+						widgetVar="calendarWidget" timeZone="GMT+1" axisFormat="HH:mm">
+						<p:ajax event="dateSelect" listener="#{calendar.onDateSelect}"
+							update="todoDetails" oncomplete="PF('todoDialog').show();" />
+						<p:ajax event="eventSelect" listener="#{calendar.onEventSelect}"
+							update="todoDetails" oncomplete="PF('todoDialog').show();" />
+						<p:ajax event="eventMove" listener="#{calendar.onEventMove}"
+							update="growl" />
+					</p:schedule>
+				</h:panelGrid>
+
+				<p:dialog widgetVar="todoDialog" closeOnEscape="true" header="Todo Details"
+					hideEffect="fade" showEffect="fade" responsive="true">
+					<h:panelGrid id="todoDetails" columns="2">
+						<p:outputLabel for="title" value="#{plannerMsg['title']}:" />
+						<p:inputText id="title" value="#{calendar.task.title}"
+							required="true" requiredMessage="#{msg['errorRequiredTitle']}"
+							maxlength="64" />
+						<p:outputLabel for="description"
+							value="#{plannerMsg['description']}:" />
+						<p:inputTextarea id="description"
+							value="#{calendar.task.description}" maxlength="2048" />
+
+						<p:outputLabel for="place" value="#{plannerMsg['place']}:" />
+						<p:inputText id="place" value="#{calendar.task.place}"
+							maxlength="64" />
+
+						<p:outputLabel for="type" value="#{plannerMsg['type']}:" />
+						<p:selectOneMenu id="type" value="#{calendar.task.taskType}"
+							style="width:125px">
+							<f:selectItem itemLabel="#{plannerMsg['exam']}" itemValue="exam" />
+							<f:selectItem itemLabel="#{plannerMsg['excercise']}"
+								itemValue="excercise" />
+							<f:selectItem itemLabel="Sport" itemValue="sport" />
+							<f:selectItem itemLabel="#{plannerMsg['other']}"
+								itemValue="other" />
+							<f:selectItem itemLabel="#{plannerMsg['none']}" itemValue="none" />
+						</p:selectOneMenu>
+
+						<h:outputLabel for="allDay" value="#{plannerMsg['allDay']}:" />
+						<p:selectBooleanCheckbox id="allDay"
+							value="#{calendar.task.allDay}" />
+
+						<p:outputLabel for="from" value="#{plannerMsg['from']}:" />
+						<p:calendar id="from" value="#{calendar.task.startTime}"
+							timeZone="GMT+1" pattern="dd/MM/yyyy HH:mm" />
+
+						<p:outputLabel for="to" value="#{plannerMsg['to']}:" />
+						<p:calendar id="to" value="#{calendar.task.endTime}"
+							timeZone="GMT+1" pattern="dd/MM/yyyy HH:mm" />
+
+						<p:commandButton id="addButton" value="#{msg['save']}"
+							actionListener="#{calendar.addTask}" icon="fa fa-floppy-o"
+							oncomplete="PF('calendarWidget').update();PF('todoDialog').hide();"
+							update="growl" styleClass="ui-priority-primary" />
+						<p:commandButton id="deleteButton" value="#{msg['delete']}"
+							actionListener="#{calendar.removeTask}" icon="fa fa-trash-o"
+							oncomplete="PF('calendarWidget').update();PF('todoDialog').hide();"
+							rendered="#{calendar.renderDeleteButton()}" update="growl"
+							styleClass="ui-priority-primary" style="background: red" />
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+			<script type="text/javascript">
+				PrimeFaces.locales['de'] = {
+					closeText : 'Schlie\u00dfen',
+					prevText : 'Vorheriges',
+					nextText : 'N\u00e4chstes',
+					currentText : 'Aktuelles Datum',
+					monthNames : [ 'Januar', 'Februar', 'M\u00e4rz', 'April',
+							'Mai', 'Juni', 'Juli', 'August', 'September',
+							'Oktober', 'November', 'Dezember' ],
+					monthNamesShort : [ 'Jan', 'Feb', 'M\u00e4r', 'Apr', 'Mai',
+							'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+					dayNames : [ 'Sonntag', 'Montag', 'Dienstag', 'Mittwoch',
+							'Donnerstag', 'Freitag', 'Samstag' ],
+					dayNamesShort : [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ],
+					dayNamesMin : [ 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa' ],
+					weekHeader : 'Wo',
+					firstDay : 1,
+					isRTL : false,
+					showMonthAfterYear : false,
+					yearSuffix : '',
+					month : 'Monat',
+					week : 'Woche',
+					day : 'Tag',
+					allDayText : 'Ganzer Tag'
+				};
+			</script>
+			<style type="text/css">
+.value {
+	width: 1000px;
+}
+</style>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

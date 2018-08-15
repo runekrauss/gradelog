@@ -1,0 +1,116 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<h:body>
+	<f:metadata>
+		<f:viewParam name="id" value="#{pageBean.data}" />
+		<f:viewAction action="#{pageBean.onRedirect(param.id,'')}" />
+	</f:metadata>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="own.xhtml">#{pagesMsg['own']}</a></li>
+				<li><a href="shared.xhtml">#{pagesMsg['sharedPages']}</a></li>
+				<li class="active"><a href="#">#{pagesMsg['new']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.pages"
+				var="pagesMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h:outputScript library="js" name="clipboard.min.js"/>
+			<script>
+                new Clipboard('.btn');
+			</script>
+			<h2>
+				<h:outputText value="#{pagesMsg['new']}" />
+			</h2>
+			<div>
+				<h:form id="form">
+					<p:growl id="growl" showDetail="false" sticky="false" />
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel for="title" value="#{pagesMsg['title']}:" />
+						<p:inputMask id="title" value="#{pageBean.customPage.title}"
+							maxlength="64" required="true"
+							requiredMessage="#{pagesMsg['titleRequired']}">
+							<f:validateLength minimum="1" />
+						</p:inputMask>
+						<p:outputLabel value="#{pagesMsg['shareDP']}" for="share" />
+						<p:autoComplete id="share" multiple="true"
+							value="#{pageBean.selectedReceivers}"
+							completeMethod="#{pageBean.completeReceiver}" var="receiver"
+							itemLabel="#{receiver.getDisplayName()}"
+							itemValue="#{receiver.getReceiverName()}" forceSelection="false"
+							disabled="#{pageBean.autoCompleteDisabled()}">
+							<p:column>
+								<h:outputText value="#{receiver.getDisplayName()}" />
+							</p:column>
+						</p:autoComplete>
+					</h:panelGrid>
+					<p:outputLabel for="editor" value="#{pagesMsg['content']}:" />
+					<pe:ckEditor id="editor" value="#{pageBean.customPage.content}"
+						required="true" requiredMessage="#{pagesMsg['contentRequired']}"
+						width="100%"
+						toolbar="
+					[
+						{ name: 'document', items : [ 'NewPage','DocProps','Preview','Print','-','Templates' ] },
+						{ name: 'clipboard', items : [ 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo' ] },
+						{ name: 'editing', items : [ 'Find','Replace','-','SelectAll', ] },
+
+						{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat' ] },
+						{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+						'-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+						{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+						{ name: 'insert', items : [ 'Image','Table','HorizontalRule','Smiley','SpecialChar','PageBreak' ] },
+
+						{ name: 'styles', items : [ 'Styles','Format','Font','FontSize' ] },
+						{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+						{ name: 'tools', items : [ 'Maximize', 'ShowBlocks', '-', 'Source'] }
+					]" />
+					<p:spacer height="5" />
+					<p:accordionPanel activeIndex="null">
+						<p:tab title="#{pagesMsg['files']}">
+							<p:dataTable var="file" value="#{fileBean.files}" emptyMessage="#{pagesMsg['emptyFiles']}" rows="10"
+										 paginator="true"
+										 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										 rowsPerPageTemplate="5,10,15">
+								<p:column headerText="#{pagesMsg['fileName']}">
+									<h:outputText value="#{file.showName}" />
+								</p:column>
+
+								<p:column headerText="#{pagesMsg['fileDate']}">
+									<h:outputText value="#{file.date}" />
+								</p:column>
+
+								<p:column headerText="Link">
+									<input id="file#{fileBean.file.id}" value="#{fileBean.generateLink(file)}" />
+								</p:column>
+
+								<p:column headerText="#{pagesMsg['copy']}">
+										<button type="button" class="btn" data-clipboard-target="#file#{fileBean.file.id}">#{pagesMsg['copy']}</button>
+								</p:column>
+							</p:dataTable>
+						</p:tab>
+					</p:accordionPanel>
+					<p:separator />
+					<p:commandButton value="#{msg['save']}" update="growl"
+						actionListener="#{pageBean.save(pageBean.customPage)}"
+						icon="fa fa-floppy-o" styleClass="ui-priority-primary"
+						oncomplete="location.reload()" />
+					<p:commandButton value="#{pagesMsg['clear']}" update="form"
+						process="@this" icon="fa fa-undo">
+						<p:resetInput target="form" />
+					</p:commandButton>
+
+				</h:form>
+			</div>
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

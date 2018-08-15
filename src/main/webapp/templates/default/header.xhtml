@@ -1,0 +1,95 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+	<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header page-scroll">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+					data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">#{msg['toggle']}</span> #{msg['menu']} <i
+						class="fa fa-bars"></i>
+				</button>
+				<a class="navbar-brand" href="#{request.contextPath}/index.xhtml">
+					<c:choose>
+						<c:when test="#{templateBean.frontendTemplate.title != null}">
+       						#{templateBean.frontendTemplate.title}
+    					</c:when>
+						<c:otherwise>
+        					Gradelog
+    					</c:otherwise>
+					</c:choose>
+				</a>
+				<h:form class="languageChooser"
+					rendered="#{templateBean.frontendTemplate.isLanguage()}">
+					<h:commandLink action="#{languageBean.onLanguageChange('de')}">
+						<h:graphicImage value="resources/img/lang/de.png" />
+					</h:commandLink>
+					<h:commandLink action="#{languageBean.onLanguageChange('en')}">
+						<h:graphicImage value="resources/img/lang/en.png" />
+					</h:commandLink>
+				</h:form>
+				<h:outputText class="userStatus"
+					value="#{defaultMsg['allUsers']}:
+					#{frontendBean.allUsers}, #{defaultMsg['allOnlineUsers']}:
+					#{frontendBean.allOnlineUsers}"
+					rendered="#{templateBean.frontendTemplate.isUserStatus()}" />
+			</div>
+
+			<div class="collapse navbar-collapse"
+				id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-right">
+					<h:panelGroup rendered="#{frontendBean.allPages[1].activated}">
+						<li><a href="#{request.contextPath}/news.xhtml">#{defaultMsg['news']}</a></li>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{frontendBean.allPages[2].activated}">
+						<li><a href="#{request.contextPath}/help.xhtml">#{defaultMsg['help']}</a></li>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{frontendBean.allPages[3].activated}">
+						<li><a href="#{request.contextPath}/faq.xhtml">FAQ</a></li>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{frontendBean.allPages[4].activated}">
+						<li><a href="#{request.contextPath}/imprint.xhtml">#{defaultMsg['imprint']}</a></li>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{templateBean.frontendTemplate.isLogin()}">
+						<li><a href="#{request.contextPath}/scheduler/index.xhtml">Login</a></li>
+					</h:panelGroup>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<header class="intro-header"
+		style="background-image: url(#{request.contextPath}/resources/img/bg/prev.jpg)">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+					<div class="site-heading">
+						<c:choose>
+							<c:when test="#{templateBean.frontendTemplate.intro != null}">
+								<h1>#{templateBean.frontendTemplate.intro}</h1>
+							</c:when>
+							<c:otherwise>
+								<h1>Oberschule Ronzelenstrasse</h1>
+							</c:otherwise>
+						</c:choose>
+						<hr class="small" />
+						<c:choose>
+							<c:when test="#{templateBean.frontendTemplate.slogan != null}">
+								<span class="subheading">#{templateBean.frontendTemplate.slogan}</span>
+							</c:when>
+							<c:otherwise>
+								<span class="subheading">Die Sportbetonte Schule</span>
+							</c:otherwise>
+						</c:choose>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+</ui:composition>
+</html>

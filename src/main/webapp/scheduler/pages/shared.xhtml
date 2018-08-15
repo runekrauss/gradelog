@@ -1,0 +1,116 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="own.xhtml">#{pagesMsg['own']}</a></li>
+				<li class="active"><a href="#">#{pagesMsg['sharedPages']}</a></li>
+				<li><a href="new.xhtml">#{pagesMsg['new']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.pages"
+				var="pagesMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2><h:outputText value="#{pagesMsg['sharedPages']}" /></h2>
+			<div>
+				<div class="panel panel-default">
+					<h:form id="pageForm">
+						<p:growl id="growl" showDetail="false" sticky="false" />
+						<p:dataTable id="pages" var="page" rows="20"
+								paginator="true"
+								paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								rowsPerPageTemplate="5,10,25,50,100"
+									 value="#{pageBean.getSharedPages()}" 
+									 emptyMessage="#{msg['emptyMessage']}" 
+									 selection="#{pageBean.selectedPage}"
+									 selectionMode="single" 
+									 rowKey="#{page.id}"
+									 widgetVar="sharedTable">
+							<f:facet name="header">
+								<p:outputPanel>
+									<h:outputText value="#{msg['search']} " />
+									<p:inputText id="globalFilter"
+										onkeyup="PF('sharedTable').filter()"
+										style="width:150px; margin-left: 20px"
+										placeholder="#{msg['keyword']}" />
+								</p:outputPanel>
+							</f:facet>
+							<p:column headerText="#{pagesMsg['page']}" sortBy="#{page.title}" filterBy="#{page.title}" filterMatchMode="contains" style="width:25%;text-align: center" filterStyle="display:none">
+								<h:outputText value="#{page.title}" />
+							</p:column>
+							<p:column headerText="#{pagesMsg['date']}" sortBy="#{page.date}" filterBy="#{page.date}" filterMatchMode="contains" style="width:20%;text-align: center" filterStyle="display:none">
+								<h:outputText value="#{page.getDate()}">
+									<f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{pagesMsg['owner']}" sortBy="#{page.user.getPureName()}" filterBy="#{page.user.getPureName()}" filterMatchMode="contains" style="width:20%;text-align: center" filterStyle="display:none">
+								<p:commandLink id="profileRedirect" action="#{profileBean.show}" ajax="false">
+									<f:param name="userId" value="#{page.user.id}" />
+									<h:outputText value="#{page.user.getPureName()}" />
+								</p:commandLink>
+							</p:column>
+							<p:column headerText="#{pagesMsg['edit']}">
+									<p:commandButton id="show" title="#{pagesMsg['show']}" icon="fa fa-search" action="#{pageBean.redirect(page.id, 'show')}" />
+									<p:commandButton id="showSharers" title="#{pagesMsg['showSharer']}" icon="fa fa-users" action="#{pageBean.setSelectedPage(page)}" oncomplete="PF('sharersDialog').show()" update="@form" />
+									<p:commandButton id="delete" title="#{pagesMsg['delete']}" icon="fa fa-trash-o" action="#{pageBean.setSelectedPage(page)}" oncomplete="PF('removeDialog').show()" update="@form" />
+							</p:column>
+						</p:dataTable>
+						<p:contextMenu for="pages" rendered="#{!(empty pageBean.getSharedPages())}">
+							<p:menuitem value="#{pagesMsg['show']}" icon="fa fa-search" action="#{pageBean.redirect(pageBean.selectedPage.id, 'show')}" />
+							<p:menuitem value="#{pagesMsg['delete']}" icon="fa fa-trash-o" oncomplete="PF('removeDialog').show()" />
+						</p:contextMenu>
+						
+						<p:dialog header="#{pagesMsg['pageDeletionDialogTitle']}" rendered="#{not empty pageBean.selectedPage}"
+								widgetVar="removeDialog" modal="true" responsive="true" resizable="false"
+								closable="true" showEffect="fade" hideEffect="fade"  closeOnEscape="true" >
+							<p:outputPanel id="removeDialogPanel">
+								<h:outputText value="#{pagesMsg['removeSharedPageQuestion']}" />
+								<p:separator/>
+								<p:commandButton value="#{pagesMsg['delete']}" icon="fa fa-trash-o"
+												 styleClass="ui-priority-primary" style="background: red"
+												 update="@form"
+												 id="removeDialogSaveButton"
+												 action="#{pageBean.removeShareable(pageBean.selectedPage)}" oncomplete="location.reload();" />
+								<p:commandButton value="#{pagesMsg['cancel']}" icon="fa fa-ban"
+												 oncomplete="PF('removeDialog').hide()" />
+							</p:outputPanel>
+						</p:dialog>
+						
+						<p:dialog header="#{pagesMsg['sharersDialogTitle']}" rendered="#{not empty pageBean.selectedPage}"
+								widgetVar="sharersDialog" modal="true" responsive="true" resizable="true"
+								closable="true" showEffect="fade" hideEffect="fade"  closeOnEscape="true" >
+							<p:outputPanel id="sharersDialogPanel">
+								<p:dataTable id="sharers" var="sharer" 
+									 value="#{pageBean.getSharers(pageBean.getSelectedPage())}" 
+									 emptyMessage="#{msg['emptyMessage']}"  
+									 rowKey="#{sharer.id}" 
+									 rows="7"
+									 paginator="true" >
+									<p:column headerText="#{pagesMsg['sharer']}" style="width:25%;text-align: center">
+										<h:outputText value="#{sharer.getPureName()}" />
+									</p:column>
+									<p:column headerText="#{pagesMsg['profileLink']}" style="width:25%;text-align: center">
+										<p:commandButton icon="fa fa-search" title="#{msg['view']}"
+											action="#{profileBean.show}" rendered="#{sharer.hasProfile()}" >
+											<f:param name="userId" value="#{sharer.id}" />
+										</p:commandButton>
+									</p:column>
+								</p:dataTable>
+							</p:outputPanel>
+						</p:dialog>
+					</h:form>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>					

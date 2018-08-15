@@ -1,0 +1,151 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li class="active"><a href="#">#{communityMsg['groups']}</a></li>
+				<li><a href="invitations.xhtml">#{communityMsg['invitations']}</a></li>
+				<li><a href="users.xhtml">#{communityMsg['users']}</a></li>
+				<li><a href="teachers.xhtml">#{communityMsg['teachers']}</a></li>
+				<li><a href="phone.xhtml">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{communityMsg['groups']}</h2>
+
+
+			<h:form id="dataForm">
+				<p:dataTable var="groups" value="#{groupBean.groups}" id="dataId" emptyMessage="#{communityMsg['noGroupsFound']}">
+					<p:column headerText="#{communityMsg['active']}">
+						<h:outputText value="#{groups.name}" />
+					</p:column>
+					<p:column headerText="#{communityMsg['options']}">
+						<p:commandButton update=":grpform"
+							oncomplete="PF('viewGrp').show()" icon="ui-icon-search"
+							title="#{communityMsg['view']}">
+							<f:setPropertyActionListener value="#{groups}"
+								target="#{groupBean.selectedGroup}" />
+						</p:commandButton>
+						<p:commandButton update=":confirmForm"
+							oncomplete="PF('viewForm').show()"
+							title="#{communityMsg['leave']}" icon="fa fa-sign-out">
+							<f:setPropertyActionListener value="#{groups}"
+								target="#{groupBean.selectedGroup}" />
+						</p:commandButton>
+
+						<p:commandButton update=":addForm"
+							oncomplete="PF('addDial').show()" title="#{communityMsg['add']}"
+							icon="fa fa-plus">
+							<f:setPropertyActionListener value="#{groups}"
+								target="#{groupBean.selectedGroup}" />
+						</p:commandButton>
+					</p:column>
+					<f:facet name="footer">
+						<p:commandButton update=":newForm"
+							oncomplete="PF('newDialog').show()"
+							value="#{communityMsg['new']}" icon="fa fa-plus" />
+					</f:facet>
+				</p:dataTable>
+			</h:form>
+
+			<p:growl id="growl" showDetail="no" autoUpdate="false" />
+			<h:form id="grpform">
+				<p:dialog header="#{groupBean.selectedGroup.name}" showEffect="fade" 
+					hideEffect="fade" widgetVar="viewGrp" closeOnEscape="true" responsive="true" modal="true">
+					<p:dataTable id="users" value="#{groupBean.selectedGroup.users}"
+						var="usr">
+						<p:column>
+							<h:outputText value="#{usr.profile.firstName} #{usr.profile.lastName}" />
+						</p:column>
+						<column> <h:outputText value="#{usr.email}" /> </column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="confirmForm">
+
+				<p:dialog widgetVar="viewForm" closeOnEscape="true"  showEffect="fade" 
+					 hideEffect="fade" header="#{communityMsg['leave']}" modal="true">
+
+					<h:panelGrid columns="2" cellPadding="5">
+
+						<h:outputText value="#{communityMsg['confirm']}" />
+						<br />
+						<h:outputText value="#{groupBean.selectedGroup.name}" />
+						<h:form>
+
+							<p:commandButton oncomplete="PF('viewForm').hide()"
+								icon="fa fa-sign-out" actionListener="#{groupBean.updateDelete}"
+								update="growl :dataForm:dataId" value="#{communityMsg['leave']}">
+							</p:commandButton>
+						</h:form>
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+
+
+			<h:form id="newForm">
+
+				<p:dialog header="#{communityMsg['new']}" responsive="true" showEffect="fade" 
+					hideEffect="fade" widgetVar="newDialog" closeOnEscape="true" modal="true">
+					<h:panelGrid columns="2" cellPadding="5">
+						<h:outputLabel id="grpName" value="#{communityMsg['grpName']}" />
+						<p:inputText id="grpNames" value="#{groupBean.group.name}"
+							required="true" requiredMessage="#{communityMsg['noGroupName']}" />
+						<h:outputLabel id="userinvites"
+							value="#{communityMsg['userinvite']}" />
+						<p:autoComplete id="invites" multiple="true"
+							value="#{groupBean.returnedUsers}"
+							completeMethod="#{groupBean.completeUsers}" var="invited"
+							itemLabel="#{invited.displayName}"
+							itemValue="#{invited.receiverName}" forceSelection="true"
+							maxResults="10">
+							<p:column>
+								<h:outputText value="#{invited.getDisplayName()}" />
+							</p:column>
+						</p:autoComplete>
+
+						<p:commandButton oncomplete="PF('newDialog').hide()"
+							update="growl :dataForm:dataId"
+							actionListener="#{groupBean.save}"
+							value="#{communityMsg['save']}" />
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="addForm">
+				<p:dialog widgetVar="addDial" closeOnEscape="true" header="#{communityMsg['addUser']}" showEffect="fade" 
+					hideEffect="fade" responsive="true" modal="true">
+					<h:panelGrid columns="2" cellPadding="5">
+						<h:outputLabel value="#{communityMsg['addUser']}" />
+						<p:autoComplete id="addUsers" multiple="true"
+							value="#{groupBean.returnedUsers}"
+							completeMethod="#{groupBean.completeUsers}" var="invited"
+							itemLabel="#{invited.displayName}"
+							itemValue="#{invited.receiverName}" forceSelection="true">
+							<p:column>
+								<h:outputText value="#{invited.getDisplayName()}" />
+							</p:column>
+						</p:autoComplete>
+						<p:commandButton oncomplete="PF('addDial').hide()"
+							actionListener="#{groupBean.addInvites}"
+							value="#{communityMsg['save']}" update="growl :dataForm:dataId" />
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li class="active"><a href="#">#{profileMsg['settings']}</a></li>
+				<li><a href="evaluation.xhtml">#{profileMsg['evaluation']}</a></li>
+				<li><a href="file_upload.xhtml">#{profileMsg['fileUpload']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.profile"
+				var="profileMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{profileMsg['settings']}</h2>
+			<div class="col-md-4 profilePicture">
+				<p:graphicImage id="profilePicture" value="#{userBean.profile.picture}"
+					class="img-thumbnail" alt="#{msg['profilePicture']}" width="200"
+					height="200" cache="false"/>
+				<h:panelGroup rendered="#{userBean.profile.isOwnPicture()}">
+					<p>
+						<h:form>
+							<p:growl id="growl" showDetail="no" autoUpdate="false" />
+							<p:commandButton update="growl profilePicture"
+								value="#{msg['delete']}"
+								actionListener="#{userBean.deletePicture}" icon="fa fa-trash-o"
+								styleClass="ui-priority-primary" style="background: red" oncomplete="location.reload();">
+								<p:confirm header="#{msg['confirmation']}"
+									message="#{msg['confirmationMessage']}" icon="fa fa-exclamation-triangle" />
+							</p:commandButton>
+							<p:confirmDialog global="true" showEffect="fade"
+								hideEffect="fade">
+								<p:commandButton value="#{msg['yes']}" type="button"
+									styleClass="ui-confirmdialog-yes" icon="fa fa-check" />
+								<p:commandButton value="#{msg['no']}" type="button"
+									styleClass="ui-confirmdialog-no" icon="fa fa-times" />
+							</p:confirmDialog>
+						</h:form>
+					</p>
+				</h:panelGroup>
+				<h:form enctype="multipart/form-data" id="pictureForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false" />
+					<p:separator />
+					<p:fileUpload value="#{userBean.profile.file}" id="picture"
+						mode="advanced" skinSimple="true" auto="true"
+						dragDropSupport="true" allowTypes="/(\.|\/)(jpe?g)$/"
+						update="growl pictureForm" sizeLimit="100000"
+						label="#{profileMsg['browse']}"
+						fileUploadListener="#{userBean.upload}"
+						invalidFileMessage="#{msg['errorInvalidFile']}"
+						invalidSizeMessage="#{msg['errorInvalidSizeMessage']}"
+						oncomplete="location.reload();" />
+					<p:tooltip id="toolTipPicture" for="picture"
+						value="#{msg['notePictureSize']}" position="top" />
+				</h:form>
+			</div>
+
+			<div class="col-md-8">
+				<h:form id="profileForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false" />
+					<p:panel header="#{profileMsg['myProfile']}" id="profilePanel">
+						<h:panelGrid columns="2" cellpadding="5" id="settings">
+							<h:outputLabel for="login" value="Login:" />
+							<p:inputText id="login" value="#{userBean.user.login}"
+								disabled="true" />
+							<h:outputLabel for="name" value="#{profileMsg['firstName']}:" />
+							<p:inputText id="name" value="#{userBean.profile.firstName}"
+								disabled="true" />
+							<h:outputLabel for="surname" value="#{profileMsg['surname']}:" />
+							<p:inputText id="surname" value="#{userBean.profile.lastName}"
+								disabled="true" />
+							<h:outputLabel for="email" value="Email:" />
+							<p:inputText id="email" value="#{userBean.user.email}"
+								disabled="true" />
+							<h:outputLabel for="password" value="#{profileMsg['password']}:" />
+							<p:password id="password" value="#{userBean.user.password}"
+								match="password2" feedback="true" maxlength="16"
+								validatorMessage="#{msg['errorPasswordCharacters']}">
+								<f:validateRegex
+									pattern="^$|(((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!]).{8,16}))" />
+							</p:password>
+							<h:outputLabel for="password2"
+								value="#{profileMsg['password2']}:" />
+							<p:password id="password2" value="#{userBean.user.password}"
+								maxlength="16" />
+							<h:outputLabel for="sex" value="#{profileMsg['sex']}:" />
+							<p:selectOneRadio id="sex" value="#{userBean.profile.sex}"
+								required="true">
+								<f:selectItem itemLabel="#{msg['male']}" itemValue="male" />
+								<f:selectItem itemLabel="#{msg['female']}" itemValue="female" />
+							</p:selectOneRadio>
+							<h:outputLabel for="birthday" value="#{profileMsg['birthday']}:" />
+							<p:calendar id="birthday" value="#{userBean.profile.birthday}"
+								pattern="dd/MM/yyyy" mask="true" />
+							<h:outputLabel for="course" value="#{profileMsg['course']}:" />
+							<p:inputText id="course" value="#{userBean.profile.course}"
+								maxlength="64" />
+							<h:outputLabel for="reminder" value="#{profileMsg['reminder']}?" />
+							<p:selectBooleanButton id="reminder"
+								value="#{userBean.user.activatedReminder}"
+								onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+								style="width:60px" />
+							<h:outputLabel for="allTodos" value="#{profileMsg['allTodos']}?" />
+							<p:selectBooleanButton id="allTodos"
+								value="#{userBean.user.activatedAllTodos}"
+								onLabel="#{msg['yes']}" offLabel="#{msg['no']}"
+								style="width:60px" />
+							<h:outputLabel for="private" value="#{profileMsg['private']}?" />
+							<p:selectBooleanButton id="private"
+								value="#{userBean.profile.privated}" onLabel="#{msg['yes']}"
+								offLabel="#{msg['no']}" style="width:60px" />
+							<h:outputLabel for="role" value="#{profileMsg['role']}:" />
+							<p:inputText id="role" value="#{userBean.user.role}"
+								disabled="true" />
+							<h:outputLabel for="language" value="#{profileMsg['language']}:" />
+							<p:selectOneMenu id="language"
+								value="#{userBean.user.userLanguage}" style="width:125px">
+								<f:selectItem itemLabel="#{msg['german']}" itemValue="german" />
+								<f:selectItem itemLabel="#{msg['english']}" itemValue="english" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+						<pe:ckEditor id="editor" value="#{userBean.profile.aboutMe}"
+							maxlength="1024" width="100%"
+							toolbar="
+					[
+						{ name: 'document', items : [ 'NewPage','DocProps','Preview','Print','-','Templates' ] },
+						{ name: 'clipboard', items : [ 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo' ] },
+						{ name: 'editing', items : [ 'Find','Replace','-','SelectAll', ] },
+
+						{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat' ] },
+						{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+						'-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+						{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+						{ name: 'insert', items : [ 'Image','Table','HorizontalRule','Smiley','SpecialChar','PageBreak' ] },
+
+						{ name: 'styles', items : [ 'Styles','Format','Font','FontSize' ] },
+						{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+						{ name: 'tools', items : [ 'Maximize', 'ShowBlocks', '-', 'Source'] }
+					]" />
+						<p:spacer height="5" />
+						<p:separator />
+						<p:commandButton update="growl :profileForm:settings"
+							value="#{msg['save']}" actionListener="#{userBean.save}"
+							icon="fa fa-floppy-o" styleClass="ui-priority-primary"
+							oncomplete="location.reload();" />
+					</p:panel>
+				</h:form>
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

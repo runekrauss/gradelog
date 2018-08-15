@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.uni_bremen.gradelog</groupId>
+	<artifactId>gradelog</artifactId>
+	<packaging>war</packaging>
+	<version>1.0</version>
+	<name>GradeLog</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<payara.version>4.1.153</payara.version>
+		<browser>phantomjs</browser> <!-- PhantomJS will be our default browser if no profile is specified -->
+		<maven.compiler.fork>true</maven.compiler.fork>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>prime-repo</id>
+			<name>Prime Repo</name>
+			<url>http://repository.primefaces.org</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>1.1.11.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian.extension</groupId>
+				<artifactId>arquillian-drone-bom</artifactId>
+				<version>2.0.0.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian.selenium</groupId>
+				<artifactId>selenium-bom</artifactId>
+				<version>2.53.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<!-- Java EE 7 -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- log4j for logging (local to this web app) -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
+		</dependency>
+		<!-- JUnit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Primefaces -->
+		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<version>6.1.rr.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.primefaces.extensions</groupId>
+			<artifactId>primefaces-extensions</artifactId>
+			<version>6.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.primefaces.extensions</groupId>
+			<artifactId>resources-ckeditor</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.primefaces.themes</groupId>
+			<artifactId>all-themes</artifactId>
+			<version>1.0.10</version>
+		</dependency>
+		<!-- font Awesome -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>font-awesome</artifactId>
+			<version>4.7.0</version>
+		</dependency>
+		<!-- Bootsfaces -->
+		<dependency>
+			<groupId>net.bootsfaces</groupId>
+			<artifactId>bootsfaces</artifactId>
+			<version>1.0.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- File-Upload -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<!-- Hamcrest additional matchers -->
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- JUnit in container -->
+		<dependency>
+			<groupId>org.jboss.arquillian.junit</groupId>
+			<artifactId>arquillian-junit-container</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Graphene WebDriver -->
+		<dependency>
+			<groupId>org.jboss.arquillian.graphene</groupId>
+			<artifactId>graphene-webdriver</artifactId>
+			<version>2.1.0.CR2</version>
+			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
+		<!-- embedded payara for UI tests -->
+		<dependency>
+			<groupId>fish.payara.extras</groupId>
+			<artifactId>payara-embedded-all</artifactId>
+			<version>${payara.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.arquillian.container</groupId>
+			<artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+			<version>1.0.0.CR4</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Use Java 8 and UTF-8 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<compilerArgs>
+						<arg>-Xlint</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			<!-- Check for Maven >= 3.3.3 and Java >= 1.8 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>1.4.1</version>
+				<executions>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+
+						<configuration>
+							<rules>
+								<!-- You can find the version range specification at: http://maven.apache.org/components/enforcer/enforcer-rules/versionRanges.html -->
+								<requireMavenVersion>
+									<version>3.3.3</version>
+									<message>
+										+---------------------------------------------------------------------+
+										| Maven 3.3.3 benoetigt |
+										+---------------------------------------------------------------------+
+									</message>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>1.8</version>
+									<message>
+										+---------------------------------------------------------------------+
+										| Java 8 benötigt |
+										+---------------------------------------------------------------------+
+									</message>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Configure the Embedded Payara plugin -->
+			<plugin>
+				<groupId>co.luminositylabs.oss.maven.plugins</groupId>
+				<artifactId>embedded-payara-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<port>8080</port>
+					<autoDelete>true</autoDelete>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+						<configuration>
+							<app>target/${project.artifactId}-${project.version}</app>
+							<contextRoot>${project.artifactId}</contextRoot>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- use current war plugin for war creation -->
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+			</plugin>
+			<!-- code formatting -->
+			<plugin>
+				<groupId>net.revelc.code</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
+				<version>0.5.2</version>
+				<configuration>
+					<configFile>${project.basedir}/java-code-conv.xml</configFile>
+					<overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
+					<compilerSource>1.8</compilerSource>
+					<compilerCompliance>1.8</compilerCompliance>
+					<compilerTargetPlatform>1.8</compilerTargetPlatform>
+					<lineEnding>CRLF</lineEnding>
+					<encoding>UTF-8</encoding>
+				</configuration>
+				<executions>
+
+				</executions>
+			</plugin>
+			<!-- Integration tests with maven failsafe and surefire -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.surefire</groupId>
+						<artifactId>surefire-junit47</artifactId>
+						<version>2.19.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+					<systemPropertyVariables>
+						<log4j.configuration>file:${project.basedir}/src/test/resources/log4j-silent.properties</log4j.configuration>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+			<!-- cobertura Code-Coverage Analysis -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<check>
+					</check>
+					<aggregate>true</aggregate>
+					<instrumentation>
+						<ignoreTrivial>true</ignoreTrivial>
+						<excludes>
+							<exclude>de/unibremen/gradelog/model/*.class</exclude>
+							<exclude>de/unibremen/gradelog/exception/*.class</exclude>
+							<exclude>de/unibremen/gradelog/persistence/*.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/AbstractController.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/LanguageController.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/FileController.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/TelephoneController.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/package-info.class</exclude>
+							<exclude>de/unibremen/gradelog/controller/DashboardController$1.class</exclude>
+							<exclude>de/unibremen/gradelog/util/Assertion$1.class</exclude>
+							<exclude>de/unibremen/gradelog/util/Assertion$StringValidationMode.class</exclude>
+							<exclude>de/unibremen/gradelog/util/Assertion$StringValidationMode$1.class</exclude>
+							<exclude>de/unibremen/gradelog/util/Assertion$StringValidationMode$2.class</exclude>
+							<exclude>de/unibremen/gradelog/util/package-info.class</exclude>
+							<exclude>de/unibremen/gradelog/integration/ImportTest.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>clean</goal>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.19.1</version>
+			</plugin>
+			<!-- Normally, we take off the dependency report, saves time. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<instrumentation>
+						<ignoreTrivial>true</ignoreTrivial>
+						<includes>
+							<include>de.unibremen.gradelog.controller.*</include>
+						</includes>
+						<excludes>
+							<exclude>de.unibremen.gradelog.model.*.class</exclude>
+							<exclude>de.unibremen.gradelog.exception.*.class</exclude>
+						</excludes>
+					</instrumentation>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+</project>

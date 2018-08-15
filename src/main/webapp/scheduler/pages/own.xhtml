@@ -1,0 +1,279 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns:b="http://bootsfaces.net/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li class="active"><a href="#">#{pagesMsg['own']}</a></li>
+				<li><a href="shared.xhtml">#{pagesMsg['sharedPages']}</a></li>
+				<li><a href="new.xhtml">#{pagesMsg['new']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.pages"
+				var="pagesMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>
+				<h:outputText value="#{pagesMsg['own']}" />
+			</h2>
+			<div>
+				<div class="panel panel-default">
+					<!-- Tabelle -->
+
+					<h:form id="pageForm">
+						<p:growl id="growl" showDetail="false" sticky="false" />
+						<p:dataTable id="pages" var="page"
+							value="#{pageBean.getCustomPages()}"
+							emptyMessage="#{msg['emptyMessage']}" rows="20"
+								paginator="true"
+								paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="5,10,25,50,100"
+							selection="#{pageBean.selectedPage}" selectionMode="single"
+							rowKey="#{page.id}"
+							widgetVar="pageTable">
+							<f:facet name="header">
+								<p:outputPanel>
+									<h:outputText value="#{msg['search']} " />
+									<p:inputText id="globalFilter"
+										onkeyup="PF('pageTable').filter()"
+										style="width:150px; margin-left: 20px"
+										placeholder="#{msg['keyword']}" />
+								</p:outputPanel>
+							</f:facet>
+							<p:column headerText="#{pagesMsg['page']}" sortBy="#{page.title}" filterBy="#{page.title}" filterMatchMode="contains" style="width:25%" filterStyle="display:none">
+								<h:outputText value="#{page.title}" />
+							</p:column>
+							<p:column headerText="#{pagesMsg['date']}" sortBy="#{page.date}" filterBy="#{page.date}" filterMatchMode="contains" style="width:20%" filterStyle="display:none">
+								<h:outputText value="#{page.getDate()}">
+									<f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{pagesMsg['edit']}">
+								<p:commandButton id="edit" title="#{pagesMsg['edit']}"
+									icon="fa fa-pencil-square-o"
+									action="#{pageBean.redirect(page.id, 'new')}" />
+								<p:commandButton id="history" title="#{pagesMsg['history']}"
+									icon="fa fa-history"
+									oncomplete="PF('pageHistoryDialog').show()" update="@form">
+									<f:setPropertyActionListener value="#{page}"
+										target="#{pageBean.selectedPage}" />
+								</p:commandButton>
+								<p:commandButton id="show" title="#{pagesMsg['show']}"
+									icon="fa fa-search"
+									action="#{pageBean.redirect(page.id, 'show')}" />
+								<p:commandButton id="shared" title="#{pagesMsg['shared']}"
+									icon="fa fa-users" action="#{pageBean.setSelectedPage(page)}"
+									oncomplete="PF('pageSharedDialog').show()" update="@form" />
+								<p:commandButton id="delete" title="#{pagesMsg['delete']}"
+									icon="fa fa-trash-o" action="#{pageBean.setSelectedPage(page)}"
+									oncomplete="PF('removeDialog').show()" update="@form" />
+							</p:column>
+						</p:dataTable>
+						<p:contextMenu for="pages"
+							rendered="#{!(empty pageBean.getCustomPages())}">
+							<p:menuitem value="#{pagesMsg['show']}" icon="fa fa-search"
+								action="#{pageBean.redirect(pageBean.selectedPage.id, 'show')}" />
+							<p:menuitem value="#{pagesMsg['history']}" icon="fa fa-history"
+								oncomplete="PF('pageHistoryDialog').show()"
+								update=":pageForm:chooseHistory" />
+							<p:menuitem value="#{pagesMsg['edit']}"
+								icon="fa fa-pencil-square-o"
+								action="#{pageBean.redirect(pageBean.selectedPage.id, 'new')}" />
+							<p:menuitem value="#{pagesMsg['shared']}" icon="fa fa-users"
+								action="#{pageBean.setSelectedPage(pageBean.selectedPage)}"
+								oncomplete="PF('pageSharedDialog').show()"
+								update=":pageForm:share" />
+							<p:menuitem value="#{pagesMsg['delete']}" icon="fa fa-trash-o"
+								oncomplete="PF('removeDialog').show()" />
+						</p:contextMenu>
+
+						<p:dialog header="#{pagesMsg['historyManagement']}"
+							 widgetVar="pageHistoryDialog" 
+							 closeOnEscape="true" 
+							 modal="true"
+							 showEffect="fade" 
+							 hideEffect="fade" 
+							 draggable="false" 
+							 maximizable="true" 
+							 responsive="true">
+							<p:dataTable id="chooseHistory" var="history" rows="7"
+								paginator="true"
+								value="#{pageBean.getHistoryList(pageBean.selectedPage)}"
+								rowKey="#{history.id}" style="margin-bottom:0"
+								styleClass="singleLineDataTableEntries"
+								emptyMessage="#{msg['emptyMessage']}"
+								widgetVar="historyTable">
+								<f:facet name="header">
+									#{pagesMsg['historyManagement']}
+								</f:facet>
+								<!--  <p:column style="width:40px;text-align:center"/> -->
+								<p:column headerText="#{pagesMsg['date']}" sortBy="#{history.date}">
+									<h:outputText value="#{history.getDate()}">
+										<f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+									</h:outputText>
+								</p:column>
+								<p:column headerText="#{pagesMsg['page']}" sortBy="#{history.title}">
+									<h:outputText value="#{history.title}" />
+								</p:column>
+								<p:column headerText="#{pagesMsg['edit']}">
+									<p:commandButton id="previewHistory"
+										title="#{pagesMsg['preview']}" icon="fa fa-eye"
+										action="#{pageBean.setSelectedHistory(history)}"
+										oncomplete="PF('pageSelectedDialog').show();"
+										update=":pageForm:pageHistoryDetail" />
+									<p:commandButton id="applyHistory" title="#{pagesMsg['apply']}"
+										icon="fa fa-check-circle-o"
+										action="#{pageBean.applyHistory(pageBean.selectedPage, history)}"
+										oncomplete="location.reload();" />
+									<p:commandButton id="deleteHistory"
+										title="#{pagesMsg['delete']}" icon="fa fa-trash-o"
+										action="#{pageBean.setSelectedHistory(history)}"
+										oncomplete="PF('removeHistoryDialog').show()" update="@form" />
+								</p:column>
+							</p:dataTable>
+						</p:dialog>
+
+						<p:dialog header="#{pagesMsg['previewHistory']}"
+							 widgetVar="pageSelectedDialog" 
+							 closeOnEscape="true" 
+							 modal="true"
+							 showEffect="fade" 
+							 hideEffect="fade" 
+							 maximizable="true"
+							 resizable="false"
+							 positionType="absolute"
+							 responsive="true" >
+							<p:outputPanel id="pageHistoryDetail" style="text-align:left">
+								<h2>
+									<h:outputText id="historyTitle" escape="false"
+										styleClass="preformatted"
+										value="#{pageBean.selectedHistory.title}" />
+								</h2>
+								<br />
+								<h:outputText id="historyContent" escape="false"
+									styleClass="preformatted"
+									value="#{pageBean.getSelectedHistory().getContent()}" />
+							</p:outputPanel>
+						</p:dialog>
+
+						<p:dialog header="#{pagesMsg['shareManagement']}"
+							 widgetVar="pageSharedDialog" 
+							 closeOnEscape="true" 
+							 modal="true"
+							 showEffect="fade" 
+							 hideEffect="fade" 
+							 draggable="false" 
+							 resizable="false" 
+							 maximizable="true" 
+							 responsive="true">
+							<p:accordionPanel id="panel" icon="fa fa-plus" activeIndex="null">
+								<p:tab title="#{pagesMsg['addShare']}">
+									<h:panelGrid columns="2" cellpadding="5">
+										<p:outputLabel value="#{pagesMsg['share']}" for="share" />
+										<p:autoComplete id="share" multiple="true"
+											value="#{pageBean.selectedReceivers}"
+											completeMethod="#{pageBean.completeReceiver}" var="receiver"
+											itemLabel="#{receiver.getDisplayName()}"
+											itemValue="#{receiver.getReceiverName()}"
+											forceSelection="false" disabled="#{!(pageBean.data == null)}">
+											<p:column>
+												<h:outputText value="#{receiver.getDisplayName()}" />
+											</p:column>
+										</p:autoComplete>
+									</h:panelGrid>
+									<p:commandButton id="addShared" value="#{pagesMsg['share']}"
+										icon="fa fa-plus"
+										action="#{pageBean.addShareable(pageBean.getSelectedPage())}"
+										oncomplete="location.reload();">
+										<f:ajax render="share" />
+									</p:commandButton>
+								</p:tab>
+							</p:accordionPanel>
+							<p:dataTable id="share" var="shared"
+								value="#{pageBean.getSharedList(pageBean.getSelectedPage())}"
+								rowKey="#{shared.id}" style="margin-bottom:0" rows="7"
+								paginator="true"
+								styleClass="singleLineDataTableEntries"
+								emptyMessage="#{msg['emptyMessage']}">
+								<p:column headerText="#{pagesMsg['userOrGroup']}">
+									<p:commandLink id="profileRedirect"
+										action="#{profileBean.show}" ajax="false">
+										<f:param name="userId" value="#{shared.id}" />
+										<h:outputText value="#{shared.getPureName()}" />
+									</p:commandLink>
+								</p:column>
+								<p:column headerText="#{pagesMsg['type']}">
+									<h:outputText value="#{shared.getType()}" />
+								</p:column>
+								<p:column headerText="#{pagesMsg['edit']}">
+									<p:commandButton id="deleteShared"
+										title="#{pagesMsg['remove']}" icon="fa fa-times"
+										action="#{pageBean.removeShareable(pageBean.getSelectedPage(), shared)}"
+										update="@form" />
+								</p:column>
+							</p:dataTable>
+						</p:dialog>
+
+						<p:dialog header="#{pagesMsg['pageDeletionDialogTitle']}"
+							 rendered="#{not empty pageBean.selectedPage}"
+							 widgetVar="removeDialog" 
+							 closeOnEscape="true" 
+							 modal="true" 
+							 responsive="true"
+							 resizable="false" 
+							 showEffect="fade"
+							 hideEffect="fade" 
+							 draggable="false" >
+							<p:outputPanel id="removeDialogPanel">
+								<h:outputText value="#{pagesMsg['removeCustomPageQuestion']}" />
+								<p:separator />
+								<p:commandButton value="#{pagesMsg['delete']}"
+									icon="fa fa-trash-o" styleClass="ui-priority-primary"
+									style="background: red" update="@form"
+									id="removeDialogSaveButton"
+									action="#{pageBean.removeSelectedPage()}"
+									oncomplete="location.reload();" />
+								<p:commandButton value="#{pagesMsg['cancel']}" icon="fa fa-ban"
+									oncomplete="PF('removeDialog').hide()" />
+							</p:outputPanel>
+						</p:dialog>
+
+						<p:dialog header="#{pagesMsg['historyDeletionDialogTitle']}"
+							 rendered="#{not empty pageBean.selectedHistory}"
+							 widgetVar="removeHistoryDialog" 
+							 closeOnEscape="true" 
+							 modal="true" 
+							 responsive="true"
+							 resizable="false" 
+							 showEffect="fade"
+							 hideEffect="fade"
+							 draggable="false" >
+							<p:outputPanel id="removeHistoryDialogPanel">
+								<h:outputText value="#{pagesMsg['removeHistoryQuestion']}" />
+								<p:separator />
+								<p:commandButton value="#{pagesMsg['delete']}"
+									icon="fa fa-trash-o" styleClass="ui-priority-primary"
+									style="background: red" update="@form"
+									id="removeHistoryDialogSaveButton"
+									action="#{pageBean.removeHistory(pageBean.selectedPage, pageBean.selectedHistory)}"
+									oncomplete="location.reload();" />
+								<p:commandButton value="#{pagesMsg['cancel']}" icon="fa fa-ban"
+									oncomplete="PF('removeHistoryDialog').hide()" />
+							</p:outputPanel>
+						</p:dialog>
+					</h:form>
+				</div>
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>
+
+
+

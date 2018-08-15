@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+	<div class="container">
+		<div class="row">
+			<div class="post">
+				<ui:insert name="content" />
+			</div>
+		</div>
+	</div>
+
+	<hr />
+
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+					<c:choose>
+						<c:when test="#{templateBean.frontendTemplate.copyright != null}">
+							<p class="copyright text-muted">#{templateBean.frontendTemplate.copyright}</p>
+						</c:when>
+						<c:otherwise>
+							<p class="copyright text-muted">Copyright Gradelog 2016</p>
+						</c:otherwise>
+					</c:choose>
+				</div>
+			</div>
+		</div>
+	</footer>
+</ui:composition>
+</html>

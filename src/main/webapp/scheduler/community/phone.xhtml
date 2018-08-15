@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--Author: Mirco Bockholt-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="groups.xhtml">#{communityMsg['groups']}</a></li>
+				<li><a href="invitations.xhtml">#{communityMsg['invitations']}</a></li>
+				<li><a href="users.xhtml">#{communityMsg['users']}</a></li>
+				<li><a href="teachers.xhtml">#{communityMsg['teachers']}</a></li>
+				<li class="active"><a href="#">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<style>
+				table {
+					border-spacing: 0px !important;
+					width: 0% !important;
+				}
+			</style>
+			<h2>#{communityMsg['phone']}</h2>
+			<h:form id="organigramForm">
+				<p:growl id="growl" showDetail="false" sticky="false" />
+				
+				<p:organigram id="organigram"
+                   widgetVar="organigram"
+                   value="#{telephoneBean.root}"
+                   var="node"
+                   leafNodeConnectorHeight="0"
+                   autoScrollToSelection="true"
+                   zoom="true"
+                   selection="#{telephoneBean.selectedNode}">
+ 
+
+        <p:ajax event="select" process="@this" update="dialogBox" listener="#{telephoneBean.nodeSelectListener}" oncomplete="PF('telephoneDialog').show()" />
+ 
+        <p:organigramNode>
+            <h:outputText value="#{node.data}" />
+        </p:organigramNode>
+ 
+        <p:organigramNode type="telephone"
+                          styleClass="telephone"
+                          icon="ui-icon-person">
+            <h:outputText value="#{node.data}" />
+        </p:organigramNode>
+    </p:organigram>
+    </h:form>
+				<h:form id="dialogBox">
+				<p:dialog header="#{communityMsg['editTelephone']}"
+					rendered="true"
+					widgetVar="telephoneDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" id="telephoneDialog" closable="true"
+					showEffect="fade" hideEffect="fade">
+					<p:outputPanel id="telephoneDialogPanel">
+						<p:outputLabel for="name" value="#{communityMsg['nameField']}" />
+						<br />
+						<p:inputText id="name"
+							value="#{telephoneBean.selectedTelephone.name}" maxlength="32"
+							required="true"
+							requiredMessage="#{communityMsg['requiredTelephoneName']}" />
+						<br />
+						<p:outputLabel for="number" value="#{communityMsg['numberField']}" />
+						<br />
+						<p:inputText id="number"
+							value="#{telephoneBean.selectedTelephone.number}" maxlength="32" />
+						<br />
+						<p:separator />
+						<p:commandButton value="#{communityMsg['telephoneSave']}"
+							icon="fa fa-floppy-o" styleClass="ui-priority-primary"
+							style="background: green" widgetVar="telephoneDialogSaveButton"
+							id="telephoneDialogSaveButton" action="#{telephoneBean.update()}"
+							update="organigramForm" oncomplete="PF('telephoneDialog').hide()" />
+						<p:commandButton value="#{communityMsg['telephoneCancel']}"
+							icon="fa fa-ban" oncomplete="PF('telephoneDialog').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+				</h:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+   http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+
+    <persistence-unit name="user" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <!-- https://docs.oracle.com/cd/E18930_01/html/821-2424/gksmw.html -->
+        <jta-data-source>jdbc/__default</jta-data-source>
+        <class>de.unibremen.gradelog.model.Calendar</class>
+        <class>de.unibremen.gradelog.model.Course</class>
+        <class>de.unibremen.gradelog.model.CustomPageHistory</class>
+        <class>de.unibremen.gradelog.model.CustomPage</class>
+        <class>de.unibremen.gradelog.model.Evaluation</class>
+        <class>de.unibremen.gradelog.model.File</class>
+        <class>de.unibremen.gradelog.model.FileHistory</class>
+        <class>de.unibremen.gradelog.model.Group</class>
+        <class>de.unibremen.gradelog.model.GroupInvite</class>
+        <class>de.unibremen.gradelog.model.Message</class>
+        <class>de.unibremen.gradelog.model.Page</class>
+        <class>de.unibremen.gradelog.model.Missing</class>
+        <class>de.unibremen.gradelog.model.Question</class>
+        <class>de.unibremen.gradelog.model.Representation</class>
+        <class>de.unibremen.gradelog.model.Telephone</class>
+        <class>de.unibremen.gradelog.model.Template</class>
+        <class>de.unibremen.gradelog.model.Timetable</class>
+        <class>de.unibremen.gradelog.model.TimetableEntry</class>
+        <class>de.unibremen.gradelog.model.Todo</class>
+        <class>de.unibremen.gradelog.model.User</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+            <property name="eclipselink.target-database" value="Derby"/>
+            <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

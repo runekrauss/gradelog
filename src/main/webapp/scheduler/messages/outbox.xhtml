@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+
+<h:body>
+    <ui:composition template="../../templates/scheduler/layout.xhtml">
+        <ui:define name="menu">
+            <ul class="nav nav-sidebar">
+                <li><a href="new.xhtml">#{messagesMsg['new']}</a></li>
+                <li><a href="inbox.xhtml">#{messagesMsg['inbox']}</a></li>
+                <li class="active"><a href="#">#{messagesMsg['outbox']}</a></li>
+            </ul>
+        </ui:define>
+        <ui:define name="content">
+            <f:loadBundle basename="internationalization.admin.messages"
+                          var="messagesMsg" />
+            <f:loadBundle basename="internationalization.admin.template"
+                          var="adminMsg" />
+            <f:loadBundle basename="internationalization.general" var="msg" />
+            <h:outputScript library="js" name="clipboard.min.js"/>
+            <script>
+                new Clipboard('.btn');
+            </script>
+            <h2>#{messagesMsg['outbox']}</h2>
+            <!-- Postausgang -->
+            <p:dataTable id="outbox" var="message"
+                         value="#{messageBean.sentMessages}"
+                         emptyMessage="#{messagesMsg['noSendedMessages']}">
+                <f:facet name="header">
+                    #{messagesMsg['sent']}
+                </f:facet>
+                <p:column headerText="#{messagesMsg['receiver']}">
+                    <h:outputText value="#{message.receivers}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['subjectt']}">
+                    <h:outputText value="#{message.subject}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['date']}">
+                    <h:outputText value="#{message.dateString}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['showMessage']}">
+                    <h:form>
+                        <p:growl id="growl" showDetail="false" sticky="false" />
+                        <p:commandButton value="#{messagesMsg['view']}" update="growl"
+                                         type="button" onclick="PF(#{message.id}).show()" />
+                    </h:form>
+                    <p:dialog header="#{messagesMsg['showMessage']}"
+                              widgetVar="#{message.id}" closeOnEscape="true" modal="false" resizable="false"
+                              minimizable="true" maximizable="true" showEffect="fade"
+                              hideEffect="fade" id="showMessage">
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['author']}" />
+                        <br />
+                        <h:outputText value="#{message.author}" />
+                        <br />
+                        <br />
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['subjectt']}" />
+                        <br />
+                        <h:outputText value="#{message.subject}" />
+                        <br />
+                        <br />
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['messagee']}" />
+                        <h:outputText escape="false" value="#{message.content}" />
+                    </p:dialog>
+                </p:column>
+                <p:column id="toDelete" headerText="#{messagesMsg['delete']}">
+                    <h:form>
+                        <p:growl id="growl" showDetail="false" sticky="false" />
+                        <p:commandButton value="#{messagesMsg['delete']}"
+                                         action="#{messageBean.delete(message)}" update="growl outbox"
+                                         oncomplete="location.reload();">
+                            <p:confirm header="#{messagesMsg['confirmation']}"
+                                       message="#{messagesMsg['sure']}" icon="ui-icon-alert" />
+                        </p:commandButton>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="#{msg['yes']}" type="button"
+                                             styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="#{msg['no']}" type="button"
+                                             styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
+                </p:column>
+            </p:dataTable>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="groups.xhtml">#{communityMsg['groups']}</a></li>
+				<li class="active"><a href="#">#{communityMsg['invitations']}</a></li>
+				<li><a href="users.xhtml">#{communityMsg['users']}</a></li>
+				<li><a href="teachers.xhtml">#{communityMsg['teachers']}</a></li>
+				<li><a href="phone.xhtml">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{communityMsg['invitations']}</h2>
+
+			<h:form id="dataForm">
+				<p:dataTable var="invites"
+					value="#{groupBean.getGroupInvites()}" id="inviteData"
+					emptyMessage="#{communityMsg['noInvitations']}">
+					<p:column headerText="#{communityMsg['active']}">
+						<h:outputText value="#{invites.group.name}" />
+					</p:column>
+
+					<p:column headerText="#{communityMsg['member']}">
+						<p:commandButton icon="fa fa-users"
+							title="#{communityMsg['view']}" update=":showForm"
+							oncomplete="PF('showDial').show()">
+							<f:setPropertyActionListener value="#{invites}"
+								target="#{groupBean.selectedGroupInvite}" />
+						</p:commandButton>
+					</p:column>
+
+					<p:column headerText="#{communityMsg['options']}">
+						<h:form>
+							<p:commandButton update=":joinForm"
+								oncomplete="PF('joinDial').show()"
+								title="#{communityMsg['join']}" icon="fa fa-check">
+								<f:setPropertyActionListener value="#{invites}"
+									target="#{groupBean.selectedGroupInvite}" />
+							</p:commandButton>
+
+							<p:commandButton update=":deleteForm"
+								oncomplete="PF('deleteDial').show()"
+								title="#{communityMsg['delete']}" icon="fa fa-times">
+								<f:setPropertyActionListener value="#{invites}"
+									target="#{groupBean.selectedGroupInvite}" />
+							</p:commandButton>
+						</h:form>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+
+
+			<p:growl id="growl" showDetail="no" autoUpdate="false" sticky="false" />
+			<h:form id="showForm">
+				<p:dialog header="#{groupBean.selectedGroupInvite.group.name}"
+					widgetVar="showDial" closeOnEscape="true" responsive="true" showEffect="fade" 
+					hideEffect="fade" modal="true">
+					<p:dataTable id="users"
+						value="#{groupBean.selectedGroupInvite.group.users}" var="usr">
+						<p:column headerText="Name">
+							<h:outputText value="#{usr.profile.pureName}" />
+						</p:column>
+						<p:column headerText="Email">
+							<h:outputText value="#{usr.email}" />
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="joinForm">
+				<p:dialog header="#{groupBean.selectedGroupInvite.group.name}"
+					widgetVar="joinDial" closeOnEscape="true" responsive="true" showEffect="fade" 
+					hideEffect="fade" modal="true">
+					<p:outputPanel id="acceptDialogPanelInvitation">
+						<h:outputText value="#{communityMsg['confirmAcceptInvite']}" />
+						<p:separator />
+						<p:commandButton value="#{communityMsg['join']}"
+							icon="fa fa-sign-in" styleClass="ui-priority-primary"
+							actionListener="#{groupBean.removeAccept}"
+							update="growl :dataForm:inviteData"
+							oncomplete="PF('joinDial').hide()" />
+						<p:commandButton icon="fa fa-ban"
+							oncomplete="PF('joinDial').hide()"
+							value="#{communityMsg['cancel']}" />
+					</p:outputPanel>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="deleteForm">
+				<p:dialog header="#{groupBean.selectedGroupInvite.group.name}"
+					widgetVar="deleteDial" closeOnEscape="true" responsive="true" showEffect="fade" 
+					hideEffect="fade" modal="true">
+					<p:outputPanel id="removeDeleteDialogPanelInvitation">
+						<h:outputText value="#{communityMsg['confirmDelInvite']}" />
+						<p:separator />
+						<p:commandButton value="#{communityMsg['delete']}"
+							icon="fa fa-trash-o" styleClass="ui-priority-primary"
+							actionListener="#{groupBean.removeReject}"
+							update="growl :dataForm:inviteData"
+							oncomplete="PF('deleteDial').hide()" />
+						<p:commandButton value="#{profileMsg['cancel']}" icon="fa fa-ban"
+							oncomplete="PF('deleteDial').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+			</h:form>
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

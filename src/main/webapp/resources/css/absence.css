@@ -1,0 +1,16 @@
+.ui-fileupload-choose.ui-button {
+    display: inline;
+}
+
+.ui-fileupload-choose.ui-button-icon-left{
+    display: inline;
+}
+
+#missingPage\:image_label{
+    display: inline;
+}
+
+#missingPage\:image_input{
+    width: 100%;
+    height: 100%;
+}

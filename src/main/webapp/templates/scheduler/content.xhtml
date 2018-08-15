@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar"
+				style="background: ##{templateBean.backendTemplate.sidebar}">
+				<ui:insert name="menu" />
+			</div>
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<h:panelGroup rendered="#{calendar.reminder() == true}">
+					<div class="alert alert-info">
+						<strong>#{msg['reminder']}</strong>
+					</div>
+				</h:panelGroup>
+				<ui:insert name="content" />
+			</div>
+		</div>
+	</div>
+</ui:composition>
+</html>

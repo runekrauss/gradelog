@@ -1,0 +1,148 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+
+<h:body>
+    <ui:composition template="../../templates/scheduler/layout.xhtml">
+        <ui:define name="menu">
+            <ul class="nav nav-sidebar">
+                <li><a href="new.xhtml">#{messagesMsg['new']}</a></li>
+                <li class="active"><a href="#">#{messagesMsg['inbox']}</a></li>
+                <li><a href="outbox.xhtml">#{messagesMsg['outbox']}</a></li>
+            </ul>
+        </ui:define>
+        <ui:define name="content">
+            <f:loadBundle basename="internationalization.admin.messages"
+                          var="messagesMsg" />
+            <f:loadBundle basename="internationalization.admin.template"
+                          var="adminMsg" />
+            <f:loadBundle basename="internationalization.general" var="msg" />
+            <h:outputScript library="js" name="clipboard.min.js"/>
+            <script>
+                new Clipboard('.btn');
+            </script>
+            <h2>#{messagesMsg['inbox']}</h2>
+            <!-- Posteingang -->
+            <p:dataTable id="inbox" var="message"
+                         value="#{messageBean.receivedMessages}"
+                         emptyMessage="#{messagesMsg['noMessage']}">
+                <f:facet name="header">
+                    #{messagesMsg['received']}
+                </f:facet>
+                <p:column headerText="#{messagesMsg['from']}">
+                    <h:outputText value="#{message.author}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['subjectt']}">
+                    <h:outputText value="#{message.subject}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['date']}">
+                    <h:outputText value="#{message.dateString}" />
+                </p:column>
+                <p:column headerText="#{messagesMsg['showMessage']}">
+                    <h:form>
+                        <p:growl id="growl" showDetail="false" sticky="false" />
+                        <p:commandButton value="#{messagesMsg['view']}"
+                                         action="#{messageBean.confirmRead(message)}" update="growl"
+                                         onclick="PF(#{message.id}).show()" />
+                    </h:form>
+                    <p:dialog header="#{messagesMsg['showMessage']}"
+                              widgetVar="#{message.id}" closeOnEscape="true" modal="false" resizable="false"
+                              minimizable="true" maximizable="true" id="showMessage">
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['author']}" />
+                        <br />
+                        <h:outputText value="#{message.author}" />
+                        <br />
+                        <br />
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['subjectt']}" />
+                        <br />
+                        <h:outputText value="#{message.subject}" />
+                        <br />
+                        <br />
+                        <h:outputText style="font-weight:bold"
+                                      value="#{messagesMsg['messagee']}" />
+                        <h:outputText escape="false" value="#{message.content}" />
+                    </p:dialog>
+                </p:column>
+
+                <p:column id="toDelete" headerText="#{messagesMsg['delete']}">
+                    <h:form>
+                        <p:growl id="growl" showDetail="false" sticky="false" />
+                        <p:commandButton value="#{messagesMsg['delete']}"
+                                         action="#{messageBean.delete(message)}" update="inbox growl"
+                                         oncomplete="location.reload();">
+                            <p:confirm header="#{messagesMsg['confirmation']}"
+                                       message="#{messagesMsg['sure']}" icon="ui-icon-alert" />
+                        </p:commandButton>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="#{msg['yes']}" type="button"
+                                             styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="#{msg['no']}" type="button"
+                                             styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
+                </p:column>
+
+                <p:column headerText="#{messagesMsg['answer']}">
+                    <h:form>
+                        <p:commandButton value="#{messagesMsg['answer']}"
+                                         update="answer growl" type="button"
+                                         onclick="PF(#{message.answerWindow}).show()"
+                                         action="#{messageBean.confirmRead(message)}" />
+                    </h:form>
+                    <h:form>
+                        <p:dialog header="#{messagesMsg['answerMessage']}"
+                                  widgetVar="#{message.answerWindow}" closeOnEscape="true" modal="false"
+                                  resizable="false" minimizable="true" maximizable="true"
+                                  id="reply">
+
+                            <p:growl id="answer" showDetail="false" sticky="false" />
+
+                            <pe:ckEditor id="answerEditor" required="true"
+                                         value="#{messageBean.message.content}"
+                                         requiredMessage="#{messagesMsg['whatIsMessage']}"
+                                         maxlength="1024" width="100%"
+                                         toolbar="
+					[
+						{ name: 'document', items : [ 'NewPage','DocProps','Preview','Print','-','Templates' ] },
+						{ name: 'clipboard', items : [ 'Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo' ] },
+						{ name: 'editing', items : [ 'Find','Replace','-','SelectAll', ] },
+
+						{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat' ] },
+						{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+						'-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+						{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+						{ name: 'insert', items : [ 'Image','Table','HorizontalRule','Smiley','SpecialChar','PageBreak' ] },
+
+						{ name: 'styles', items : [ 'Styles','Format','Font','FontSize' ] },
+						{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+						{ name: 'tools', items : [ 'Maximize', 'ShowBlocks', '-', 'Source'] }
+					]">
+                            </pe:ckEditor>
+                            <br />
+                            <p:commandButton actionListener="#{messageBean.reply(message)}"
+                                             value="#{messagesMsg['submit']}" update="reply answer"
+                                             icon="ui-icon-check" oncomplete="location.reload();">
+                                <f:ajax render="inbox" />
+                            </p:commandButton>
+                        </p:dialog>
+                    </h:form>
+                </p:column>
+                <p:column id="read" headerText="#{messagesMsg['status']}">
+                    <h:form>
+                        <h:outputText value="#{messagesMsg['read']}"
+                                      rendered="#{message.getReadStatus(messageBean.user.getReceiverName())}" />
+                        <h:outputText value="#{messagesMsg['unread']}"
+                                      rendered="#{message.getReadStatus(messageBean.user.getReceiverName()) == false}" />
+                    </h:form>
+                </p:column>
+            </p:dataTable>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>

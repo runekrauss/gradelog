@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+<f:view locale="#{loginBean.getLanguage()}">
+	<f:loadBundle basename="internationalization.errorPages" var="msg" />
+
+	<h:head>
+		<f:facet name="first">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+			<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+			<title>#{msg['generalErrorTitle']}</title>
+		</f:facet>
+
+		<f:facet name="middle">
+			<h:outputStylesheet name="bootstrap.min.css" library="css" />
+			<h:outputStylesheet name="error.css" library="css" />
+
+			<h:outputScript name="jquery-3.1.1.min.js" library="js" />
+
+			<h:outputScript name="bootstrap.min.js" library="js" />
+		</f:facet>
+
+		<f:facet name="last">
+
+		</f:facet>
+	</h:head>
+	<h:body>
+		<div class="container">
+			<div class="row">
+				<div class="span12">
+					<div class="hero-unit center">
+						<h2>#{msg['errorTitle']}</h2>
+						<br />
+						<p>#{msg['generalErrorMsg']}</p>
+						<p>#{msg['directRedirectLink']}</p>
+						<a href="#{request.contextPath}/index.xhtml"
+							class="btn btn-large btn-default"><i
+							class="icon-home icon-white"></i>#{msg['home']}</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</h:body>
+</f:view>
+</html>

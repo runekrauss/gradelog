@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="groups.xhtml">#{communityMsg['groups']}</a></li>
+				<li><a href="invitations.xhtml">#{communityMsg['invitations']}</a></li>
+				<li><a href="users.xhtml">#{communityMsg['users']}</a></li>
+				<li><a href="teachers.xhtml">#{communityMsg['teachers']}</a></li>
+				<li><a href="phone.xhtml">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h:form>
+				<p:commandButton value="#{msg['back']}" action="#{profileBean.back}"
+					styleClass="ui-priority-primary" icon="ui-icon-arrowthick-1-w" />
+			</h:form>
+			<h:panelGroup
+				rendered="#{not empty profileBean.user and !profileBean.profile.isPrivated()}">
+				<h3>#{profileBean.profile.pureName}</h3>
+				<div class="col-md-4 profilePicture">
+					<p:graphicImage value="#{profileBean.profile.picture}"
+						class="img-thumbnail" alt="#{msg['profilePicture']}" width="200"
+						height="200" cache="false"/>
+				</div>
+
+				<div class="col-md-8">
+					<p:panel header="#{communityMsg['profile']}">
+						<h:panelGrid columns="2" cellpadding="5" id="profile">
+							<h:outputText value="Email" style="font-weight:bold" />
+							<h:outputText value="#{profileBean.user.email}" />
+							<h:outputText value="#{communityMsg['sex']}"
+								style="font-weight:bold" />
+							<h:outputText value="#{msg['male']}" rendered="#{profileBean.profile.sex=='male'}" />
+							<h:outputText value="#{msg['female']}" rendered="#{profileBean.profile.sex=='female'}" />
+							<h:outputText value="#{communityMsg['birthday']}"
+								style="font-weight:bold" />
+							<h:outputText value="#{profileBean.profile.birthday}">
+								<f:convertDateTime type="date" pattern="dd/MM/yyyy" />
+							</h:outputText>
+
+							<h:outputText value="#{communityMsg['course']}"
+								style="font-weight:bold" />
+							<h:outputText value="#{profileBean.profile.course}" />
+
+							<h:outputText value="#{communityMsg['about']}"
+								style="font-weight:bold" />
+							<h:outputText escape="false" value="#{profileBean.profile.aboutMe}" />
+
+							<h:outputText value="Online" style="font-weight:bold" />
+							<p:graphicImage name="img/icons/online.png" width="16" alt="Online" rendered="#{profileBean.user.isOnline()}" />
+							<p:graphicImage name="img/icons/offline.png" width="16" alt="Offline" rendered="#{!profileBean.user.isOnline()}" />
+						</h:panelGrid>
+					</p:panel>
+				</div>
+			</h:panelGroup>
+			<h:panelGroup
+				rendered="#{empty profileBean.user or profileBean.profile.isPrivated()}">
+				<br />
+				<div class="alert alert-danger">
+					<strong>#{msg['errorMissing']}</strong>
+				</div>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

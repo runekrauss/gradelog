@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="timetable.xhtml">#{secMsg['timetable']}</a></li>
+				<li><a href="todos.xhtml">#{secMsg['todos']}</a></li>
+				<li class="active"><a href="#">#{secMsg['schedule']}</a></li>
+				<li><a href="absence.xhtml">#{secMsg['absence']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.planner"
+				var="secMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{secMsg['schedule']}</h2>
+			<p:dataTable id="importedRepresentations" var="representation"
+				value="#{userBean.getRepresentations()}"
+				style="margin-bottom:20px"
+				emptyMessage="#{msg['emptyRepresentationDataTable']}"
+				rows="20" paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				rowsPerPageTemplate="5,10,25,50,100"
+				paginator="true">
+				<p:column headerText="#{secMsg['date']}">
+					<h:outputText value="#{representation.getSimpleDate()}" />
+				</p:column>
+				<p:column headerText="#{secMsg['hour']}">
+					<h:outputText value="#{representation.hour}" />
+				</p:column>
+				<p:column headerText="#{secMsg['teacher']}">
+					<h:outputText value="#{representation.teacher}" />
+				</p:column>
+				<p:column headerText="#{secMsg['repreTeacher']}">
+					<h:outputText value="#{representation.teacher}" />
+				</p:column>
+				<p:column headerText="#{secMsg['subject']}">
+					<h:outputText value="#{representation.subject}" />
+				</p:column>
+				<p:column headerText="#{secMsg['room']}">
+					<h:outputText value="#{representation.room}" />
+				</p:column>
+				<p:column headerText="#{secMsg['repreRoom']}">
+					<h:outputText value="#{representation.repreRoom}" />
+				</p:column>
+			</p:dataTable>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

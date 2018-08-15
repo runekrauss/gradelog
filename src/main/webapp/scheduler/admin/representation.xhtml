@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="users.xhtml">#{secMsg['users']}</a></li>
+				<li><a href="questions.xhtml">#{secMsg['questions']}</a></li>
+				<li class="active"><a href="#">#{secMsg['representation']}</a></li>
+				<li><a href="pages.xhtml">#{secMsg['pages']}</a></li>
+				<li><a href="templates.xhtml">Templates</a></li>
+				<li><a href="preferences.xhtml">#{secMsg['preferences']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.admin"
+				var="secMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			
+			<h:panelGroup rendered="#{userBean.user.userRole eq 'admin'}">
+			<h2>#{secMsg['representation']}</h2>
+				<div class="row">
+					<div class="col-md-4 profilePicture">
+						<h:form enctype="multipart/form-data" id="uploadForm">
+							<p:growl id="growl" showDetail="no" autoUpdate="false" />
+							<p:fileUpload value="#{adminBean.user.dif}" id="dif"
+								mode="advanced" skinSimple="true" auto="true"
+								dragDropSupport="true" update="growl :uploadForm:importedRepresentations tableForm:loadedRepresentations"
+								sizeLimit="1000000" label="#{secMsg['import']}"
+								fileUploadListener="#{adminBean.uploadDIFRepresentations}"
+								invalidSizeMessage="#{msg['errorInvalidDifSizeMessage']}"
+								oncomplete="PF('uploadDialog').show()" />
+							<p:tooltip id="toolTipPicture" for="dif"
+								value="#{msg['noteRepresentationFormat']}" position="top" />
+							<br />
+							<p:panel id="printPanel" header="#{secMsg['printContentRepresentation']}"
+								style="margin-bottom:20px">
+								<p:commandButton value="#{secMsg['print']}"
+									onclick="PF('uploadDialog').show()" type="button"
+									icon="ui-icon-print" style="margin-top: 10px" />
+							</p:panel>
+							
+							<p:dialog header="#{secMsg['uploadInfo']}"
+								widgetVar="uploadDialog" closeOnEscape="true" modal="true" resizable="true"
+								minimizable="true" maximizable="true" showEffect="fade" hideEffect="fade" >
+								<p:ajax event="close" />
+								<h3>#{secMsg['representation']}</h3>
+								<p:dataTable id="importedRepresentations" var="representation"
+									value="#{adminBean.exporter.importedRepresentations}"
+									style="margin-bottom:20px"
+									emptyMessage="#{secMsg['emptyDataTable']}"
+									paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+									paginator="true" rows="10">
+									<f:facet name="{Exporters}">
+										<h:commandLink>
+											<p:graphicImage name="img/icons/xls.png" width="24"
+												class="importIcons" alt="XLS" />
+											<p:dataExporter type="xls" target="importedRepresentations"
+												fileName="representation" />
+										</h:commandLink>
+										<h:commandLink>
+											<p:graphicImage name="img/icons/pdf.png" width="24"
+												class="importIcons" alt="PDF" />
+											<p:dataExporter type="pdf" target="importedRepresentations"
+												fileName="representation" />
+										</h:commandLink>
+										<h:commandLink>
+											<p:graphicImage name="img/icons/csv.png" width="24"
+												class="importIcons" alt="CSV" />
+											<p:dataExporter type="csv" target="importedRepresentations"
+												fileName="representation" />
+										</h:commandLink>
+										<h:commandLink>
+											<p:graphicImage name="img/icons/xml.png" width="24"
+												class="importIcons" alt="XML" />
+											<p:dataExporter type="xml" target="importedRepresentations"
+												fileName="representation" />
+										</h:commandLink>
+									</f:facet>
+									<p:column headerText="#{secMsg['date']}">
+										<h:outputText value="#{representation.getSimpleDate()}" />
+									</p:column>
+									<p:column headerText="#{secMsg['hour']}">
+										<h:outputText value="#{representation.hour}" />
+									</p:column>
+									<p:column headerText="#{secMsg['teacher']}">
+										<h:outputText value="#{representation.teacher}" />
+									</p:column>
+									<p:column headerText="#{secMsg['repreTeacher']}">
+										<h:outputText value="#{representation.teacher}" />
+									</p:column>
+									<p:column headerText="#{secMsg['subject']}">
+										<h:outputText value="#{representation.subject}" />
+									</p:column>
+									<p:column headerText="#{secMsg['room']}">
+										<h:outputText value="#{representation.room}" />
+									</p:column>
+									<p:column headerText="#{secMsg['repreRoom']}">
+										<h:outputText value="#{representation.repreRoom}" />
+									</p:column>
+									<p:column headerText="#{secMsg['class']}">
+										<h:outputText value="#{representation.classes}" />
+									</p:column>
+								</p:dataTable>
+							</p:dialog>
+						</h:form>
+					</div>
+					<div class="row">
+					<div class="col-md-12">
+						<p:tooltip position="top" />
+						<h:form id="tableForm">
+						<p:dataTable id="loadedRepresentations" var="representation"
+									value="#{adminBean.getRepresentations()}"
+									style="margin-bottom:20px"
+									emptyMessage="#{secMsg['emptyDataTable']}"
+									rows="15" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+									paginator="true">
+									<p:column headerText="#{secMsg['date']}">
+										<h:outputText value="#{representation.getSimpleDate()}" />
+									</p:column>
+									<p:column headerText="#{secMsg['hour']}">
+										<h:outputText value="#{representation.hour}" />
+									</p:column>
+									<p:column headerText="#{secMsg['teacher']}">
+										<h:outputText value="#{representation.teacher}" />
+									</p:column>
+									<p:column headerText="#{secMsg['repreTeacher']}">
+										<h:outputText value="#{representation.teacher}" />
+									</p:column>
+									<p:column headerText="#{secMsg['subject']}">
+										<h:outputText value="#{representation.subject}" />
+									</p:column>
+									<p:column headerText="#{secMsg['room']}">
+										<h:outputText value="#{representation.room}" />
+									</p:column>
+									<p:column headerText="#{secMsg['repreRoom']}">
+										<h:outputText value="#{representation.repreRoom}" />
+									</p:column>
+									<p:column headerText="#{secMsg['class']}">
+										<h:outputText value="#{representation.classes}" />
+									</p:column>
+						</p:dataTable>
+						</h:form>
+					</div>
+					</div>
+				<!-- <div class="alert alert-danger">
+					<strong>#{msg['errorPermission']}</strong>
+				</div> -->
+			</div>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

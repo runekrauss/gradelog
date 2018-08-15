@@ -1,0 +1,288 @@
+<!--Author: Mirco Bockholt-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="timetable.xhtml">#{plannerMsg['timetable']}</a></li>
+				<li><a href="todos.xhtml">#{plannerMsg['todos']}</a></li>
+				<li><a href="representation.xhtml">#{plannerMsg['schedule']}</a></li>
+				<li class="active"><a href="#">#{plannerMsg['absence']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.planner"
+				var="plannerMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{plannerMsg['absence']}</h2>
+			<link href="../../resources/css/absence.css" type="text/css"
+				rel="stylesheet" />
+			<h:form enctype="multipart/form-data" id="missingPage">
+				<p:growl id="growl" showDetail="false" sticky="false" />
+				<p:dataTable id="missingTable"
+					value="#{missingBean.getMissingsAsList()}" var="m"
+					reflow="true" rows="10"
+					emptyMessage="#{msg['emptyMessageMissing']}" paginator="true" rowKey="#{m.id}">
+					<p:column>
+						<h:panelGroup name="#{m.id}_row">
+							<h:outputText
+								value="#{m.getStartTimeString()} - #{m.getEndTimeString()}: #{m.description.length() gt 50 ? m.description.substring(0,50) : m.description}" />
+						</h:panelGroup>
+					</p:column>
+					<p:column headerText="#{plannerMsg['options']}">
+						<p:commandButton id="viewAbsence" title="#{plannerMsg['viewAbsence']}"
+							update=":missingPage:viewDialogPanel" process="missingTable"
+										 icon="fa fa-eye" oncomplete="PF('viewDialog').show()">
+							<f:setPropertyActionListener value="#{m}" target="#{missingBean.selectedMissing}" />
+						</p:commandButton>
+						<p:commandButton id="editAbsence" title="#{plannerMsg['editAbsence']}"
+							update=":missingPage:missingDialogPanel" process="missingTable"
+										 icon="fa fa-pencil" oncomplete="PF('missingDialog').show()">
+							<f:setPropertyActionListener value="#{m}" target="#{missingBean.selectedMissing}" />
+						</p:commandButton>
+						<p:commandButton id="editAbsenceImage" title="#{plannerMsg['editAbsenceImage']}"
+							update=":missingPage:imageDialogPanel"
+							process="missingTable" icon="fa fa-file-image-o"
+										 oncomplete="PF('imageDialog').show()">
+							<f:setPropertyActionListener value="#{m}" target="#{missingBean.selectedMissing}" />
+						</p:commandButton>
+						<p:commandButton id="resetAbsenceImage" title="#{plannerMsg['resetAbsenceImage']}"
+							update=":missingPage:resetImageDialogPanel"
+							process="missingTable" icon="fa fa-undo"
+										 oncomplete="PF('resetImageDialog').show()">
+							<f:setPropertyActionListener value="#{m}" target="#{missingBean.selectedMissing}" />
+						</p:commandButton>
+						<p:commandButton id="removeAbsence" title="#{plannerMsg['removeAbsence']}"
+							update=":missingPage:removeDialogPanel" process="missingTable"
+										 icon="fa fa-trash" oncomplete="PF('removeDialog').show()">
+							<f:setPropertyActionListener value="#{m}" target="#{missingBean.selectedMissing}" />
+						</p:commandButton>
+					</p:column>
+					<p:column headerText="#{plannerMsg['absenceConfirmed']}">
+						<h:panelGroup rendered="#{m.isConfirmed()}">#{msg['yes']}</h:panelGroup>
+						<h:panelGroup rendered="#{!m.isConfirmed()}">#{msg['no']}</h:panelGroup>
+					</p:column>
+					<f:facet name="footer">
+						<p:commandButton id="add_button" widgetVar="add_button"
+							value="#{plannerMsg['addAbsence']}" icon="fa fa-plus-square"
+							styleClass="ui-priority-primary"
+							oncomplete="PF('addDialog').show()"
+							update=":missingPage:addDialogPanel" process="missingTable" />
+					</f:facet>
+				</p:dataTable>
+				<p:dialog header="#{plannerMsg['editAbsence']}"
+					rendered="#{not empty missingBean.selectedMissing}"
+					widgetVar="missingDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" id="missingDialog" closable="true"
+					showEffect="fade" hideEffect="fade"
+					focus=":#{p:component('confirmed')}">
+					<p:outputPanel id="missingDialogPanel">
+						<p:outputLabel for="startTime"
+							value="#{plannerMsg['absenceStartTime']}" />
+						<br />
+						<p:calendar id="startTime"
+							value="#{missingBean.selectedMissing.startTime}">
+							<p:ajax event="dateSelect" update="endTime" />
+						</p:calendar>
+						<br />
+						<p:outputLabel for="endTime"
+							value="#{plannerMsg['absenceEndTime']}" />
+						<br />
+						<p:calendar id="endTime"
+							value="#{missingBean.selectedMissing.endTime}"
+							mindate="#{missingBean.selectedMissing.startTime}">
+							<p:ajax event="dateSelect" update="startTime" />
+						</p:calendar>
+						<br />
+						<p:outputLabel for="description"
+							value="#{plannerMsg['absenceDescription']}" />
+						<br />
+						<p:inputTextarea autoResize="false" maxlength="1024"
+							id="description"
+							value="#{missingBean.selectedMissing.description}" />
+						<br />
+						<p:outputLabel for="confirmed"
+							value="#{plannerMsg['absenceConfirmed']}" />
+						<br />
+						<p:selectBooleanCheckbox id="confirmed"
+							value="#{missingBean.selectedMissing.confirmed}" />
+						<br />
+						<p:separator />
+						<p:commandButton value="#{plannerMsg['absenceSave']}"
+							icon="fa fa-floppy-o" styleClass="ui-priority-primary"
+							update="growl :missingPage:missingTable"
+							widgetVar="missingDialogSaveButton" id="missingDialogSaveButton"
+							action="#{missingBean.update()}"
+							oncomplete="PF('missingDialog').hide()" />
+						<p:commandButton value="#{plannerMsg['absenceCancel']}"
+							icon="fa fa-ban" oncomplete="location.reload()" />
+					</p:outputPanel>
+				</p:dialog>
+				<p:dialog header="#{plannerMsg['addAbsence']}"
+					rendered="#{not empty missingBean.missing}" widgetVar="addDialog" closeOnEscape="true"
+					modal="true" responsive="true" resizable="false" closable="true"
+					showEffect="fade" hideEffect="fade"
+					focus=":#{p:component('newConfirmed')}">
+					<p:outputPanel id="addDialogPanel">
+						<p:outputLabel for="newStartTime"
+							value="#{plannerMsg['absenceStartTime']}" />
+						<br />
+						<p:calendar id="newStartTime"
+							value="#{missingBean.missing.startTime}">
+							<p:ajax event="dateSelect" update="newEndTime" />
+						</p:calendar>
+						<br />
+						<p:outputLabel for="newEndTime"
+							value="#{plannerMsg['absenceEndTime']}" />
+						<br />
+						<p:calendar id="newEndTime" value="#{missingBean.missing.endTime}"
+							mindate="#{missingBean.missing.startTime}">
+							<p:ajax event="dateSelect" update="newStartTime" />
+						</p:calendar>
+						<br />
+						<p:outputLabel for="newDescription"
+							value="#{plannerMsg['absenceDescription']}" />
+						<br />
+						<p:inputTextarea autoResize="false" maxlength="1024"
+							id="newDescription" value="#{missingBean.missing.description}" />
+						<br />
+						<p:outputLabel for="newConfirmed"
+							value="#{plannerMsg['absenceConfirmed']}" />
+						<br />
+						<p:selectBooleanCheckbox id="newConfirmed"
+							value="#{missingBean.missing.confirmed}" />
+						<br />
+						<p:separator />
+						<p:commandButton value="#{plannerMsg['absenceSave']}"
+							icon="fa fa-floppy-o" styleClass="ui-priority-primary"
+							update="growl" widgetVar="addDialogSaveButton"
+							id="addDialogSaveButton" action="#{missingBean.create()}"
+							oncomplete="location.reload()" />
+						<p:commandButton value="#{plannerMsg['absenceCancel']}"
+							icon="fa fa-ban" oncomplete="PF('addDialog').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+				<p:dialog header="#{plannerMsg['removeAbsence']}"
+					rendered="#{not empty missingBean.selectedMissing}"
+					widgetVar="removeDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" closable="true" showEffect="fade"
+					hideEffect="fade">
+					<p:outputPanel id="removeDialogPanel">
+						<h:outputText value="#{plannerMsg['removeAbsenceQuestion']}" />
+						<p:separator />
+						<p:commandButton value="#{plannerMsg['absenceRemove']}"
+							icon="fa fa-trash" styleClass="ui-priority-primary"
+							style="background: red" update="growl :missingPage:missingTable"
+							widgetVar="removeDialogSaveButton" id="removeDialogSaveButton"
+							action="#{missingBean.remove()}" oncomplete="location.reload()" />
+						<p:commandButton value="#{plannerMsg['absenceCancel']}"
+							icon="fa fa-ban" oncomplete="PF('removeDialog').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+				<p:dialog header="#{plannerMsg['viewAbsence']}"
+					rendered="#{not empty missingBean.selectedMissing}"
+					widgetVar="viewDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" id="viewDialog" closable="true" showEffect="fade"
+					hideEffect="fade">
+					<p:outputPanel id="viewDialogPanel">
+						<p:panelGrid columns="2" layout="grid">
+							<p:outputPanel>
+								<p:graphicImage value="#{missingBean.selectedMissing.image}"
+									class="img-thumbnail" alt="#{plannerMsg['absencePictureText']}"
+									width="150" height="150" cache="false" />
+							</p:outputPanel>
+							<p:outputPanel>
+								<p:outputLabel for="viewStartTime"
+									value="#{plannerMsg['absenceStartTime']}" />
+								<br />
+								<h:outputText id="viewStartTime"
+									value="#{missingBean.selectedMissing.getStartTimeString()}" />
+								<br />
+								<p:outputLabel for="newEndTime"
+									value="#{plannerMsg['absenceEndTime']}" />
+								<br />
+								<h:outputText id="viewEndTime"
+									value="#{missingBean.selectedMissing.getEndTimeString()}" />
+								<br />
+								<p:outputLabel for="viewDescription"
+									value="#{plannerMsg['absenceDescription']}" />
+								<br />
+								<p:scrollPanel mode="native" style="width:150px;height:100px"
+									id="viewDescription">#{missingBean.selectedMissing.description}</p:scrollPanel>
+								<br />
+								<p:outputLabel for="viewConfirmed1"
+									value="#{plannerMsg['absenceConfirmed']}"
+									rendered="#{missingBean.selectedMissing.confirmed eq true}" />
+								<br />
+								<h:outputText id="viewConfirmed1"
+									value="#{plannerMsg['absenceYes']}"
+									rendered="#{missingBean.selectedMissing.confirmed eq true}" />
+								<br />
+								<p:outputLabel for="viewConfirmed2"
+									value="#{plannerMsg['absenceConfirmed']}"
+									rendered="#{missingBean.selectedMissing.confirmed eq false}" />
+								<br />
+								<h:outputText id="viewConfirmed2"
+									value="#{plannerMsg['absenceNo']}"
+									rendered="#{missingBean.selectedMissing.confirmed eq false}" />
+								<br />
+							</p:outputPanel>
+							<p:outputPanel>
+								<p:commandButton value="#{plannerMsg['absenceClose']}"
+									icon="fa fa-times" oncomplete="PF('viewDialog').hide()" />
+							</p:outputPanel>
+						</p:panelGrid>
+					</p:outputPanel>
+				</p:dialog>
+				<p:dialog header="#{plannerMsg['editAbsenceImage']}"
+					rendered="#{not empty missingBean.selectedMissing}"
+					widgetVar="imageDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" closable="true" showEffect="fade"
+					hideEffect="fade">
+					<p:outputPanel id="imageDialogPanel">
+						<p:outputLabel value="#{plannerMsg['absencePictureText']}" />
+						<p:fileUpload value="#{missingBean.selectedMissing.file}"
+							id="image" mode="advanced" skinSimple="true" auto="true"
+							label="#{plannerMsg['absenceBrowse']}" dragDropSupport="true"
+							allowTypes="/(\.|\/)(jpe?g)$/"
+							update="growl :missingPage:missingTable" sizeLimit="10000000"
+							fileUploadListener="#{missingBean.uploadImage}"
+							invalidFileMessage="#{msg['errorInvalidFile']}"
+							invalidSizeMessage="#{plannerMsg['absenceImageSize']}"
+							oncomplete="PF('imageDialog').hide()" />
+						<p:separator />
+						<p:commandButton value="#{plannerMsg['absenceCancel']}"
+							icon="fa fa-ban" oncomplete="PF('imageDialog').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+				<p:dialog header="#{plannerMsg['resetAbsenceImage']}"
+					rendered="#{not empty missingBean.selectedMissing}"
+					widgetVar="resetImageDialog" closeOnEscape="true" modal="true" responsive="true"
+					resizable="false" closable="true" showEffect="fade"
+					hideEffect="fade">
+					<p:outputPanel id="resetImageDialogPanel">
+						<h:outputText value="#{plannerMsg['resetAbsenceImageQuestion']}" />
+						<p:separator />
+						<p:commandButton value="#{plannerMsg['absenceReset']}"
+							icon="fa fa-trash" styleClass="ui-priority-primary"
+							style="background: red" update="growl :missingPage:missingTable"
+							widgetVar="resetImageDialogSaveButton"
+							id="resetImageDialogSaveButton"
+							action="#{missingBean.resetImage()}"
+							oncomplete="location.reload()" />
+						<p:commandButton value="#{plannerMsg['absenceCancel']}"
+							icon="fa fa-ban" oncomplete="PF('resetImageDialog').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

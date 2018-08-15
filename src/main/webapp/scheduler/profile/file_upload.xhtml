@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="settings.xhtml">#{profileMsg['settings']}</a></li>
+				<li><a href="evaluation.xhtml">#{profileMsg['evaluation']}</a></li>
+				<li class="active"><a href="#">#{profileMsg['fileUpload']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.profile"
+				var="profileMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{profileMsg['fileUpload']}</h2>
+			<div class="col-md-4">
+				<h:form enctype="multipart/form-data" id="pdfForm"
+					style="text-align: center;">
+					<p:growl id="growl" showDetail="no" autoUpdate="false" />
+					<p:separator />
+					<h:outputText value="#{profileMsg['limitReached']}" style="color:red;font-size:14px;" rendered="#{preferenceBean.isLimitReached(fileBean.getFileSize())}"/>
+					<p:fileUpload value="#{fileBean.file.file}" id="pdfUpload"
+						mode="advanced" skinSimple="true" auto="true"
+						dragDropSupport="true" allowTypes="#{preferenceBean.types}"
+						update="growl pdfForm fileForm" sizeLimit="#{preferenceBean.fileSize}"
+						label="#{profileMsg['browse']}"
+						fileUploadListener="#{fileBean.upload}"
+						invalidFileMessage="#{msg['errorInvalidFiles']}"
+						invalidSizeMessage="#{msg['errorInvalidFilesSizeMessage']}" rendered="#{!preferenceBean.isLimitReached(fileBean.getFileSize())}"/>
+				</h:form>
+			</div>
+
+			<div class="col-md-8">
+				<h:form id="fileForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false" />
+					<p:dataTable id="files" var="file" value="#{fileBean.files}"
+						rowKey="#{file.id}" selectionMode="single"
+						selection="#{fileBean.selectedFile}"
+						emptyMessage="#{profileMsg['emptyFiles']}">
+						<f:facet name="header">
+					            #{profileMsg['files']}
+					        </f:facet>
+						<p:column headerText="Name">
+							<h:outputLink value="#{fileBean.generateLink(file)}">#{file.showName}</h:outputLink>
+						</p:column>
+						<p:column headerText="#{profileMsg['date']}">
+							<h:outputText value="#{fileBean.getFileDate(file)}">
+								<f:convertDateTime type="date" pattern="dd/MM/yyyy HH:mm" />
+							</h:outputText>
+						</p:column>
+
+						<f:facet name="footer">
+							<p:commandButton update=":fileForm:files"
+								oncomplete="location.reload();" title="#{msg['delete']}"
+								process="files" styleClass="ui-priority-secondary"
+								actionListener="#{fileBean.delete}"
+								rendered="#{not empty fileBean.files}">
+								<p:confirm header="#{profileMsg['confirmation']}"
+									message="#{profileMsg['confirmationMessage']}"
+									icon="fa fa-exclamation-triangle" />
+							</p:commandButton>
+							<p:confirmDialog global="true" showEffect="fade"
+								hideEffect="fade">
+								<p:commandButton value="#{msg['yes']}" type="button"
+									styleClass="ui-confirmdialog-yes" icon="fa fa-check" />
+								<p:commandButton value="#{msg['no']}" type="button"
+									styleClass="ui-confirmdialog-no" icon="fa fa-times" />
+							</p:confirmDialog>
+						</f:facet>
+					</p:dataTable>
+				</h:form>
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

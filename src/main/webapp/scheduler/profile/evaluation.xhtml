@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="settings.xhtml">#{profileMsg['settings']}</a></li>
+				<li class="active"><a href="#">#{profileMsg['evaluation']}</a></li>
+				<li><a href="file_upload.xhtml">#{profileMsg['fileUpload']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.profile"
+				var="profileMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{profileMsg['evaluation']}</h2>
+			<h:panelGrid>
+				<p:dataTable value="#{evaluationBean.getSortedEvas()}" var="eva"
+					reflow="true" rowIndexVar="index"
+					emptyMessage="#{msg['emptyMessageEval']}" id="evaTable">
+					<p:column headerText="#{profileMsg['date']}">
+						<h:outputText
+							value="#{profileMsg['evaluation']} #{evaluationBean.getListLength() - index}" />
+					</p:column>
+					<p:column headerText="#{profileMsg['interaction']}">
+						<h:form>
+							<p:growl id="growl" showDetail="no" autoUpdate="false"
+								sticky="false" />
+							<p:commandButton update=":evaform"
+								oncomplete="PF('showDial').show()" icon="fa fa-search"
+								title="#{profileMsg['view']}">
+								<f:setPropertyActionListener value="#{eva}"
+									target="#{evaluationBean.selectedEvaluation}" />
+							</p:commandButton>
+							<p:commandButton update=":deleteForm"
+								oncomplete="PF('deleteDial').show()" icon="fa fa-trash-o"
+								title="#{profileMsg['delete']}" > 
+								<f:setPropertyActionListener value="#{eva}"
+									target="#{evaluationBean.selectedEvaluation}" />
+							</p:commandButton>
+						</h:form>
+					</p:column>
+					<f:facet name="footer">
+						<h:form>
+							<p:growl id="growl" showDetail="no" autoUpdate="false"
+								sticky="false" />
+							<p:commandButton onclick="PF('dlg1').show();"
+								value="#{profileMsg['new']}" icon="fa fa-plus" />
+						</h:form>
+					</f:facet>
+
+
+				</p:dataTable>
+			</h:panelGrid>
+
+
+
+			<h:form id="evaform">
+				<p:growl id="growl" showDetail="no" autoUpdate="false"
+					sticky="false" />
+				<p:dialog header="#{evaluationBean.selectedEvaluation.date}"
+					widgetVar="showDial" closeOnEscape="true" showEffect="fade">
+					<p:dataTable
+						value="#{evaluationBean.selectedEvaluation.questionHolders}"
+						var="hold" emptyMessage="#{msg['emptyMessageEvalQuestion']}">
+						<p:column headerText="#{profileMsg['question']}">
+							<h:outputText value="#{hold.question.question}" />
+						</p:column>
+						<p:column headerText="#{profileMsg['rating']}">
+							<p:selectOneRadio id="console" value="#{hold.answer}"
+								disabled="true" layout="responsive" columns="4">
+								<f:selectItem itemLabel="#{profileMsg['1']}" itemValue="1" />
+								<f:selectItem itemLabel="#{profileMsg['2']}" itemValue="2" />
+								<f:selectItem itemLabel="#{profileMsg['3']}" itemValue="3" />
+								<f:selectItem itemLabel="#{profileMsg['4']}" itemValue="4" />
+							</p:selectOneRadio>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+
+			<p:dialog header="#{profileMsg['newEva']}" widgetVar="dlg1" closeOnEscape="true" showEffect="fade">
+				<h:form>
+					<p:dataTable value="#{evaluationBean.evaluation.questionHolders}"
+						var="holder" emptyMessage="#{msg['emptyMessageEvalQuestion']}">
+						<p:growl id="growl" showDetail="no" autoUpdate="false"
+							sticky="false" />
+						<p:column headerText="#{profileMsg['question']}">
+							<h:outputText value="#{holder.question.question}" />
+						</p:column>
+						<p:column headerText="#{profileMsg['rating']}">
+							<p:selectOneRadio id="console" value="#{holder.answer}"
+								required="true" layout="responsive" columns="4">
+								<f:selectItem itemLabel="#{profileMsg['1']}" itemValue="1" />
+								<f:selectItem itemLabel="#{profileMsg['2']}" itemValue="2" />
+								<f:selectItem itemLabel="#{profileMsg['3']}" itemValue="3" />
+								<f:selectItem itemLabel="#{profileMsg['4']}" itemValue="4" />
+							</p:selectOneRadio>
+						</p:column>
+						<f:facet name="footer">
+							<p:commandButton value="#{profileMsg['save']}"
+								actionListener="#{evaluationBean.save()}" icon="fa fa-floppy-o"
+								styleClass="ui-priority-primary" oncomplete="PF('dlg1').hide();"
+								update="growl evaTable"
+								rendered="#{!(empty evaluationBean.evaluation.questionHolders)}" />
+						</f:facet>
+					</p:dataTable>
+				</h:form>
+			</p:dialog>
+
+			<h:form id="deleteForm">
+				<p:growl id="growl" showDetail="no" autoUpdate="false"
+					sticky="false" />
+				<p:dialog header="#{profileMsg['delete']}" widgetVar="deleteDial" closeOnEscape="true"
+					modal="true" responsive="true" resizable="false" closable="true"
+					showEffect="fade" hideEffect="fade">
+					<p:outputPanel id="removeDeleteDialogPanel">
+						<h:outputText value="#{profileMsg['confirmDel']}" />
+						<p:separator />
+						<p:commandButton value="#{profileMsg['delete']}"
+							icon="fa fa-trash-o" styleClass="ui-priority-primary" style="background: red"
+							actionListener="#{evaluationBean.remove}"
+							oncomplete="PF('deleteDial').hide();" update="growl evaTable" />
+						<p:commandButton value="#{profileMsg['cancel']}" icon="fa fa-ban"
+							oncomplete="PF('deleteDial').hide()" />
+					</p:outputPanel>
+				</p:dialog>
+			</h:form>
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="groups.xhtml">#{communityMsg['groups']}</a></li>
+				<li><a href="invitations.xhtml">#{communityMsg['invitations']}</a></li>
+				<li class="active"><a href="#">#{communityMsg['users']}</a></li>
+				<li><a href="teachers.xhtml">#{communityMsg['teachers']}</a></li>
+				<li><a href="phone.xhtml">#{communityMsg['phone']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.community"
+				var="communityMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h2>#{communityMsg['users']}</h2>
+			<div class="row">
+				<h:form id="userForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false" />
+					<p:dataTable id="users" var="user"
+						value="#{userBean.allPublicUsers}" rows="10" paginator="true"
+						filteredValue="#{userBean.filteredUsers}" widgetVar="usersTable"
+						style="margin-bottom:20px" emptyMessage="#{msg['emptyDataTable']}"
+						tableStyle="table-layout: auto;">
+						<f:facet name="header">
+							<p:outputPanel>
+								<p:inputText id="globalFilter"
+									onkeyup="PF('usersTable').filter()" style="width:150px"
+									placeholder="#{msg['keyword']}" />
+							</p:outputPanel>
+						</f:facet>
+						<p:column headerText="Name" filterBy="#{user.profile.firstName}"
+							filterMatchMode="contains">
+							<h:outputText value="#{user.profile.firstName}" />
+						</p:column>
+						<p:column headerText="#{communityMsg['lastName']}"
+							filterBy="#{user.profile.lastName}" filterMatchMode="contains">
+							<h:outputText value="#{user.profile.lastName}" />
+						</p:column>
+						<p:column headerText="Email" filterBy="#{user.email}"
+							filterMatchMode="contains">
+							<h:outputText value="#{user.email}" />
+						</p:column>
+						<p:column style="width:32px;text-align: center">
+							<p:commandButton icon="fa fa-search" title="#{msg['view']}"
+								action="#{profileBean.show}">
+								<f:param name="userId" value="#{user.id}" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</h:form>
+			</div>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

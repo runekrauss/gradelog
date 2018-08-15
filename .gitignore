@@ -1,0 +1,60 @@
+ytarget/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# IntelliJ
+.idea
+*.iml
+
+res/
+logs/
+logs/*
+gradelog.log.*
+
+# Exclude maven wrapper
+!/.mvn/wrapper/maven-wrapper.jar
+
+.classpath
+.project
+.settings/
+#Latex byproducts
+*.aux
+*.log
+*.synctex.gz
+*.toc
+
+*target*
+*.jar
+*.war
+*.ear
+*.class
+
+# Eclipse specific
+*.pydevproject
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+.DS_Store
+
+# Vim files
+*~

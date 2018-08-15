@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:body>
+	<ui:composition template="../../templates/scheduler/layout.xhtml">
+		<ui:define name="menu">
+			<ul class="nav nav-sidebar">
+				<li><a href="users.xhtml">#{secMsg['users']}</a></li>
+				<li class="active"><a href="#">#{secMsg['questions']}</a></li>
+				<li><a href="representation.xhtml">#{secMsg['representation']}</a></li>
+				<li><a href="pages.xhtml">#{secMsg['pages']}</a></li>
+				<li><a href="#">Templates</a></li>
+				<li><a href="preferences.xhtml">#{secMsg['preferences']}</a></li>
+			</ul>
+		</ui:define>
+		<ui:define name="content">
+			<f:loadBundle basename="internationalization.admin.admin"
+				var="secMsg" />
+			<f:loadBundle basename="internationalization.admin.template"
+				var="adminMsg" />
+			<f:loadBundle basename="internationalization.general" var="msg" />
+			<h:panelGroup rendered="#{userBean.user.userRole eq 'admin'}">
+				<h2>#{secMsg['questions']}</h2>
+				<h:panelGrid>
+					<h:form id="questionForm">
+						<p:dataTable id="questionTable"
+							value="#{evaluationBean.evaluation.questionHolders}"
+							var="questions" rendered="#{userBean.user.userRole eq 'admin'}"
+							emptyMessage="#{secMsg['emptyQuestions']}">
+							<f:facet name="header">
+								<p:growl id="growl" showDetail="no" autoUpdate="false"
+									sticky="false" />
+							#{secMsg['questions']}
+						</f:facet>
+							<p:column headerText="#{secMsg['question']}">
+								<h:outputText value="#{questions.question.question}" />
+							</p:column>
+							<p:column headerText="#{secMsg['option']}">
+
+								<p:commandButton update=":deleteQuestionForm"
+									oncomplete="PF('deleteQuestionDial').show()"
+									icon="fa fa-trash-o" title="#{secMsg['delete']}">
+									<f:setPropertyActionListener value="#{questions.question}"
+										target="#{questionBean.selectedQuestion}" />
+								</p:commandButton>
+
+							</p:column>
+							<f:facet name="footer">
+								<p:commandButton onclick="PF('newQuestionDial').show()"
+									icon="fa fa-plus" value="#{secMsg['newQuestion']}"
+									update="growl" />
+							</f:facet>
+						</p:dataTable>
+					</h:form>
+				</h:panelGrid>
+
+				<h:form id="deleteQuestionForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false"
+						sticky="false" />
+					<p:dialog header="#{secMsg['delete']}"
+						widgetVar="deleteQuestionDial" closeOnEscape="true" modal="true" responsive="true"
+						resizable="false" closable="true" showEffect="fade"
+						hideEffect="fade">
+						<p:outputPanel id="removeDeleteDialogPanelQuestion">
+							<h:outputText value="#{secMsg['confirmDelQuestion']}" />
+							<p:separator />
+							<p:commandButton value="#{secMsg['delete']}" icon="fa fa-trash-o"
+								styleClass="ui-priority-primary"
+								actionListener="#{questionBean.remove}"
+								update=":questionForm:questionTable growl"
+								oncomplete="location.reload()" />
+							<p:commandButton value="#{secMsg['cancel']}" icon="fa fa-ban"
+								oncomplete="PF('deleteQuestionDial').hide()"
+								update=":questionForm:questionTable" />
+						</p:outputPanel>
+					</p:dialog>
+				</h:form>
+
+				<h:form id="newQuestionForm">
+					<p:growl id="growl" showDetail="no" autoUpdate="false"
+						sticky="false" />
+					<p:dialog header="#{secMsg['newQuestion']}" closeOnEscape="true"
+						widgetVar="newQuestionDial" modal="true" responsive="true"
+						resizeable="false" showEffect="fade"
+						hideEffect="fade">
+						<p:outputPanel id="newQuestionDialogPanel">
+							<h:panelGrid columns="2" cellpadding="5">
+								<p:outputLabel for="question" value="#{secMsg['questionDP']}" />
+								<p:inputText id="question"
+									value="#{questionBean.question.question}" maxlength="64"
+									required="true"
+									requiredMessage="#{secMsg['requiredQuestionMessage']}" />
+
+								<p:commandButton value="#{secMsg['save']}"
+									actionListener="#{questionBean.save()}" icon="fa fa-floppy-o"
+									styleClass="ui-priority-primary"
+									oncomplete="location.reload()"
+									update=":questionForm:questionTable growl" />
+							</h:panelGrid>
+						</p:outputPanel>
+					</p:dialog>
+				</h:form>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{userBean.user.userRole ne 'admin'}">
+
+				<div class="alert alert-danger">
+					<strong>#{msg['errorPermission']}</strong>
+				</div>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>
